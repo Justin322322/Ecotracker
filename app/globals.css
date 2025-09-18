@@ -1,0 +1,522 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom tab styling - target tab triggers specifically */
+[data-radix-tabs-trigger][data-state="active"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* Target elements with tab-like classes and active state - only for tab components */
+.inline-flex[data-state="active"][role="tab"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* More specific targeting for tab navigation - only for tab buttons */
+nav button[data-state="active"][role="tab"],
+div button[data-state="active"][role="tab"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* Target custom data attributes - only for tab elements */
+[data-active-bg][data-state="active"][role="tab"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+/* Specific targeting for TabsTrigger components */
+[data-radix-tabs-trigger][data-state="active"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 9%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 9%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    /* Prevent layout shift when scrollbar hides/shows */
+    scrollbar-gutter: stable; /* reserve only on scrollbar side */
+    /* Keep scrollbar track visible to avoid disappearing when Dialog locks scroll */
+    overflow-y: scroll;
+    /* Neutralize scroll-lock padding variable globally */
+    --removed-body-scroll-bar-size: 0px !important;
+    background-color: #000000; /* avoid white flash at edges when locking scroll */
+  }
+  body {
+    @apply text-foreground;
+    background-color: #000000; /* enforce dark bg under drawers */
+    /* Reserve scrollbar gutter at body level too to avoid shifts on lock */
+    scrollbar-gutter: stable;
+    /* Ensure the scroll-lock variable resolves to zero */
+    --removed-body-scroll-bar-size: 0px !important;
+  }
+  /* Radix Dialog sets padding-right using --removed-body-scroll-bar-size.
+     Since we reserve gutter, disable extra padding to prevent layout shift. */
+  body[style*="--removed-body-scroll-bar-size"],
+  html[style*="--removed-body-scroll-bar-size"],
+  body.react-remove-scroll-bar,
+  html.react-remove-scroll-bar,
+  body.react-remove-scroll,
+  html.react-remove-scroll,
+  body[data-scroll-locked],
+  html[data-scroll-locked] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    /* When scroll is locked, don't reserve gutter to avoid right gap */
+    scrollbar-gutter: auto !important;
+  }
+
+  /* Explicitly neutralize inline padding-right added by scroll lock */
+  body[data-scroll-locked][style*="padding-right"],
+  html[data-scroll-locked][style*="padding-right"] {
+    padding-right: 0 !important;
+  }
+}
+
+/* Dark-mode friendly autofill overrides */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ffffff;
+  transition: background-color 5000s ease-in-out 0s;
+  box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Firefox */
+input:-moz-autofill,
+textarea:-moz-autofill,
+select:-moz-autofill {
+  box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset;
+  -moz-text-fill-color: #ffffff;
+}
+
+@layer utilities {
+  .writing-mode-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  
+  .hero-text-shadow {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 8px 16px rgba(0, 0, 0, 0.4);
+  }
+  
+  .hero-text-glow {
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.8), 0 0 40px rgba(74, 222, 128, 0.4), 0 0 60px rgba(74, 222, 128, 0.2);
+  }
+}
+
+/* Material Symbols helper - ensures ligatures render as icons */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* adjust as needed */
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+  /* default variation settings - you can tweak FILL, wght, GRAD, opsz */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4ADE80 0%, #22C55E 100%);
+  border-radius: 4px;
+  border: 1px solid #000000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #22C55E 0%, #16A34A 100%);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #15803D 0%, #166534 100%);
+}
+
+  /* Firefox scrollbar */
+  * {
+  scrollbar-width: thin;
+  scrollbar-color: #4ADE80 #000000;
+  }
+
+  /* Keep app root from reacting to scrollbar compensation */
+  #app-root {
+    max-width: 100%;
+    width: 100%;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+
+/* Mobile keyboard handling */
+@supports (height: 100dvh) {
+  .mobile-keyboard-adjust {
+    height: 100dvh;
+  }
+}
+
+/* Safe area handling for mobile */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Mobile viewport adjustments */
+@supports (height: 100dvh) {
+  .mobile-viewport {
+    height: 100dvh;
+    height: 100svh; /* Small viewport height - excludes mobile UI */
+  }
+}
+
+/* Background image loading optimization */
+.bg-image-container {
+  background-color: #000000;
+  background-image: url('/assets/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Ensure background loads smoothly */
+.bg-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #000000;
+  z-index: -1;
+}
+
+/* Sheet Animation Support - Tailwind CSS animations */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-to-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-to-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-to-bottom {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-to-top {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-0 {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Smooth fade/slide for carousel items */
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out-0 {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Animation utility classes */
+.animate-in {
+  animation: slide-in-from-right 300ms ease-out;
+}
+
+.animate-out {
+  animation: slide-out-to-right 300ms ease-out;
+}
+
+.slide-in-from-right {
+  animation: slide-in-from-right 300ms ease-out;
+}
+
+.slide-out-to-right {
+  animation: slide-out-to-right 300ms ease-out;
+}
+
+.slide-in-from-left {
+  animation: slide-in-from-left 300ms ease-out;
+}
+
+.slide-out-to-left {
+  animation: slide-out-to-left 300ms ease-out;
+}
+
+.slide-in-from-bottom {
+  animation: slide-in-from-bottom 300ms ease-out;
+}
+
+.slide-out-to-bottom {
+  animation: slide-out-to-bottom 300ms ease-out;
+}
+
+.slide-in-from-top {
+  animation: slide-in-from-top 300ms ease-out;
+}
+
+.slide-out-to-top {
+  animation: slide-out-to-top 300ms ease-out;
+}
+
+.fade-in-0 {
+  animation: fade-in-0 300ms ease-out;
+}
+
+.animate-fade-slide-up {
+  animation: fade-slide-up 420ms ease-out;
+}
+
+.fade-out-0 {
+  animation: fade-out-0 300ms ease-out;
+}
+
+/* Modern Gradient with Noise */
+.noise-gradient {
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(74, 222, 128, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(74, 222, 128, 0.06) 0%, transparent 50%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 100%);
+  position: relative;
+}
+
+/* Green Train Hover Effect */
+.green-train-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.green-train-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.8), transparent);
+  transition: left 0.6s ease-in-out;
+  z-index: 1;
+}
+
+.green-train-hover:hover::before {
+  left: 100%;
+}
+
+.green-train-hover > * {
+  position: relative;
+  z-index: 2;
+}
+
+.noise-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.noise-gradient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(74, 222, 128, 0.1) 1px, transparent 0);
+  background-size: 15px 15px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
