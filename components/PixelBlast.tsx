@@ -393,6 +393,8 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
     composer?: EffectComposer;
     touch?: ReturnType<typeof createTouchTexture>;
     liquidEffect?: Effect;
+    onPointerDown?: (e: PointerEvent) => void;
+    onPointerMove?: (e: PointerEvent) => void;
   } | null>(null);
   const prevConfigRef = useRef<any>(null);
   useEffect(() => {
@@ -413,6 +415,9 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
     if (mustReinit) {
       if (threeRef.current) {
         const t = threeRef.current;
+        // Remove pointer listeners before disposing DOM element
+        if (t.onPointerDown) t.renderer.domElement.removeEventListener('pointerdown', t.onPointerDown as EventListener);
+        if (t.onPointerMove) t.renderer.domElement.removeEventListener('pointermove', t.onPointerMove as EventListener);
         t.resizeObserver?.disconnect();
         cancelAnimationFrame(t.raf!);
         t.quad?.geometry.dispose();
@@ -598,7 +603,9 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
         timeOffset,
         composer,
         touch,
-        liquidEffect
+        liquidEffect,
+        onPointerDown,
+        onPointerMove
       };
     } else {
       const t = threeRef.current!;
@@ -628,6 +635,8 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
       if (threeRef.current && mustReinit) return;
       if (!threeRef.current) return;
       const t = threeRef.current;
+      if (t.onPointerDown) t.renderer.domElement.removeEventListener('pointerdown', t.onPointerDown as EventListener);
+      if (t.onPointerMove) t.renderer.domElement.removeEventListener('pointermove', t.onPointerMove as EventListener);
       t.resizeObserver?.disconnect();
       cancelAnimationFrame(t.raf!);
       t.quad?.geometry.dispose();

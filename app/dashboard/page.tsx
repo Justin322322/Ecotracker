@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable } from "@/components/data-table"
@@ -23,16 +23,6 @@ export default function Page() {
   const router = useRouter();
   // Removed initial mount skeletons in favor of full-screen loader
   const [viewportWidth, setViewportWidth] = useState<number | null>(null);
-
-  const handleLogoutComplete = useCallback(() => {
-    // Force hard navigation after the loader hits 100%
-    // Do not clear isLoggingOut first to prevent dashboard flash
-    if (typeof window !== 'undefined') {
-      setTimeout(() => {
-        window.location.replace('/');
-      }, 50);
-    }
-  }, []);
 
   // Client-side guard to backstop server/middleware redirects
   useEffect(() => {
@@ -67,22 +57,16 @@ export default function Page() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  // During logout, unmount dashboard content entirely. Global overlay will handle visuals.
+  if (isLoggingOut) {
+    return null;
+  }
+
   if (isLoading) {
     return (
       <FullScreenLoading
         isVisible={true}
         variant="login"
-      />
-    );
-  }
-
-  // Unmount dashboard entirely during logout (better UX)
-  if (isLoggingOut) {
-    return (
-      <FullScreenLoading
-        isVisible={true}
-        onComplete={handleLogoutComplete}
-        variant="logout"
       />
     );
   }

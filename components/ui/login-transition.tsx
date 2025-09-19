@@ -39,7 +39,8 @@ export function LoginTransition({
     }
 
     let stepIndex = 0;
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout | undefined;
+    let completeTimeoutId: NodeJS.Timeout | undefined;
     
     const updateStep = () => {
       if (stepIndex < transitionSteps.length) {
@@ -51,7 +52,7 @@ export function LoginTransition({
             updateStep();
           } else {
             setIsComplete(true);
-            setTimeout(() => {
+            completeTimeoutId = setTimeout(() => {
               onComplete?.();
             }, 800); // Reduced delay for smoother transition
           }
@@ -63,9 +64,8 @@ export function LoginTransition({
 
     // Cleanup function
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      if (timeoutId) clearTimeout(timeoutId);
+      if (completeTimeoutId) clearTimeout(completeTimeoutId);
     };
   }, [isVisible, onComplete]);
 

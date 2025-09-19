@@ -10,7 +10,13 @@ export async function GET() {
       return NextResponse.json({ user: null }, { status: 200 });
     }
 
-    const user = JSON.parse(sessionCookie.value);
+    let user: unknown = null;
+    try {
+      user = JSON.parse(sessionCookie.value);
+    } catch {
+      // If parsing fails, treat as no session
+      return NextResponse.json({ user: null }, { status: 200 });
+    }
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     console.error('Get user error:', error);

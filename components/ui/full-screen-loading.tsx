@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { LeafIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,9 +22,9 @@ const loginSteps = [
 ];
 
 const logoutSteps = [
-  { text: 'Saving your progress...', duration: 600 },
-  { text: 'Clearing session data...', duration: 600 },
   { text: 'Signing you out...', duration: 600 },
+  { text: 'Clearing session data...', duration: 600 },
+  { text: 'Redirecting...', duration: 600 },
 ];
 
 export function FullScreenLoading({
@@ -35,13 +36,27 @@ export function FullScreenLoading({
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
+  const steps = useMemo(() => (variant === 'logout' ? logoutSteps : loginSteps), [variant]);
 
-  const loadingSteps = variant === 'logout' ? logoutSteps : loginSteps;
+  const onCompleteRef = useRef<(() => void) | undefined>(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   // Ensure component is mounted on client side to prevent hydration mismatch
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Prevent background interaction/scroll while loader is visible
+  useEffect(() => {
+    if (!isVisible) return;
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.documentElement.style.overflow = prev;
+    };
+  }, [isVisible]);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -52,27 +67,30 @@ export function FullScreenLoading({
       return;
     }
 
+    // Step-based progression for both login and logout variants
     let stepIndex = 0;
     let progressValue = 0;
-    const totalSteps = loadingSteps.length;
-    let progressInterval: NodeJS.Timeout;
-    
+    const totalSteps = steps.length;
+    let progressInterval: NodeJS.Timeout | undefined;
+    let stepTimeoutId: NodeJS.Timeout | undefined;
+    let completeTimeoutId: NodeJS.Timeout | undefined;
+
     const updateStep = () => {
       if (stepIndex < totalSteps) {
         setCurrentStep(stepIndex);
-        
-        const stepDuration = loadingSteps[stepIndex]?.duration || 1000;
+
+        const stepDuration = steps[stepIndex]?.duration || 1000;
         const stepProgress = 100 / totalSteps;
         const targetProgress = (stepIndex + 1) * stepProgress;
-        
+
         // Animate progress for this step smoothly
         progressInterval = setInterval(() => {
           const increment = (stepProgress / (stepDuration / 100));
           progressValue = Math.min(progressValue + increment, targetProgress);
-          setProgress(Math.round(progressValue));
+          setProgress(progressValue);
         }, 100);
-        
-        setTimeout(() => {
+
+        stepTimeoutId = setTimeout(() => {
           clearInterval(progressInterval);
           setProgress(targetProgress);
           stepIndex++;
@@ -81,8 +99,8 @@ export function FullScreenLoading({
           } else {
             // Complete loading
             setProgress(100);
-            setTimeout(() => {
-              onComplete?.();
+            completeTimeoutId = setTimeout(() => {
+              onCompleteRef.current?.();
             }, 300);
           }
         }, stepDuration);
@@ -93,32 +111,31 @@ export function FullScreenLoading({
 
     // Cleanup function
     return () => {
-      if (progressInterval) {
-        clearInterval(progressInterval);
-      }
+      if (progressInterval) clearInterval(progressInterval);
+      if (stepTimeoutId) clearTimeout(stepTimeoutId);
+      if (completeTimeoutId) clearTimeout(completeTimeoutId);
     };
-  }, [isVisible, onComplete, loadingSteps, isMounted]);
+  }, [isVisible, isMounted, steps]);
 
-  // Don't render anything until mounted to prevent hydration issues
+  // Avoid hydration issues
   if (!isMounted) {
     return null;
   }
 
-  return (
+  const content = (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.02 }}
-          transition={{ 
-            duration: 0.4, 
+          initial={{ opacity: 0, ...(variant === 'logout' ? { scale: 1 } : {}) }}
+          animate={{ opacity: 1, ...(variant === 'logout' ? {} : { scale: 1 }) }}
+          exit={{ opacity: 0, ...(variant === 'logout' ? { scale: 1 } : { scale: 1.02 }) }}
+          transition={{
+            duration: 0.35,
             ease: "easeOut",
-            opacity: { duration: 0.3 },
-            scale: { duration: 0.4 }
           }}
           className={cn(
-            'fixed inset-0 z-50 flex items-center justify-center bg-black',
+            'fixed inset-0 flex items-center justify-center bg-black',
+            variant === 'logout' ? 'z-[2147483647]' : 'z-50',
             className
           )}
         >
@@ -133,9 +150,9 @@ export function FullScreenLoading({
             {/* Static leaf icon logo (no animation) */}
             <LeafIcon className="mb-4 h-8 w-8 text-green-400" aria-label="EcoTracker logo" />
             <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              initial={{ opacity: 0, ...(variant === 'logout' ? {} : { y: -20, scale: 0.98 }) }}
+              animate={{ opacity: 1, ...(variant === 'logout' ? {} : { y: 0, scale: 1 }) }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               className="mb-8 flex flex-col items-center space-y-2"
             >
               <motion.h1
@@ -158,9 +175,9 @@ export function FullScreenLoading({
 
             {/* Progress bar */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
+              initial={{ opacity: 0, ...(variant === 'logout' ? {} : { y: 20 }) }}
+              animate={{ opacity: 1, ...(variant === 'logout' ? {} : { y: 0 }) }}
+              transition={{ delay: 0.5, duration: 0.4 }}
               className="w-full mx-auto mb-6 shrink-0"
             >
               <div
@@ -172,9 +189,13 @@ export function FullScreenLoading({
                 aria-valuenow={Math.max(0, Math.min(100, Math.round(progress)))}
               >
                 <motion.div
-                  className="h-full bg-gradient-to-r from-green-500 via-green-400 to-green-300 rounded-full shadow-lg shadow-green-500/25"
-                  style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className={cn(
+                    'h-full bg-gradient-to-r from-green-500 via-green-400 to-green-300 rounded-full shadow-lg shadow-green-500/25',
+                    variant === 'logout' ? 'transition-[width] duration-[280ms] ease-linear' : ''
+                  )}
+                  style={{
+                    width: `${Math.max(0, Math.min(100, progress))}%`,
+                  }}
                 />
               </div>
               <div className="flex items-center justify-between mt-3 text-xs text-neutral-400 select-none">
@@ -188,22 +209,22 @@ export function FullScreenLoading({
 
             {/* Loading steps */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.5 }}
+              initial={{ opacity: 0, ...(variant === 'logout' ? {} : { y: 20 }) }}
+              animate={{ opacity: 1, ...(variant === 'logout' ? {} : { y: 0 }) }}
+              transition={{ delay: 0.7, duration: 0.4 }}
               className="text-center min-h-[3rem] flex items-center justify-center"
             >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, ...(variant === 'logout' ? {} : { y: 10 }) }}
+                  animate={{ opacity: 1, ...(variant === 'logout' ? {} : { y: 0 }) }}
+                  exit={{ opacity: 0, ...(variant === 'logout' ? {} : { y: -10 }) }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="flex items-center justify-center space-x-3 text-neutral-300"
                 >
                   <span className="text-base font-medium">
-                    {loadingSteps[currentStep]?.text || 'Loading...'}
+                    {steps[currentStep]?.text || 'Loading...'}
                   </span>
                 </motion.div>
               </AnimatePresence>
@@ -214,4 +235,11 @@ export function FullScreenLoading({
       )}
     </AnimatePresence>
   );
+
+  // Render logout loader at top layer using a portal
+  if (variant === 'logout' && typeof document !== 'undefined') {
+    return createPortal(content, document.body);
+  }
+
+  return content;
 }

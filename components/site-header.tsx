@@ -12,7 +12,7 @@ import { useUser } from '@/contexts/UserContext'
 export function SiteHeader() {
   // Removed page-local overlay; page handles loading. Keep minimal state if needed later.
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  const { isLoggingOut, setIsLoggingOut } = useUser();
+  const { isLoggingOut, logout } = useUser();
 
   const handleLogoutClick = () => {
     setShowLogoutDialog(true);
@@ -20,34 +20,8 @@ export function SiteHeader() {
 
   const handleLogoutConfirm = async () => {
     if (isLoggingOut) return;
-    
-    setIsLoggingOut(true);
-    // page-level overlay handles UX
     setShowLogoutDialog(false);
-    
-    try {
-      const response = await fetch(`/api/logout?t=${Date.now()}`, {
-        method: 'POST',
-        cache: 'no-store',
-        keepalive: true,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-          Pragma: 'no-cache',
-        },
-      });
-
-      if (!response.ok) {
-        console.error('Logout failed');
-        setIsLoggingOut(false);
-        return;
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-      setIsLoggingOut(false);
-      return;
-    }
-  
+    await logout();
   };
 
   // completion handled at page level

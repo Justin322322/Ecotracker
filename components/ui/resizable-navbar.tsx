@@ -85,7 +85,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
       className={cn(
         "relative z-[60] mx-auto hidden w-full max-w-7xl self-start rounded-full lg:flex",
         visible
-          ? "p-[2px] bg-gradient-to-r from-emerald-400/60 via-emerald-300/30 to-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+          ? "shadow-[0_0_20px_rgba(16,185,129,0.35)]"
           : "",
         className,
       )}
@@ -140,19 +140,28 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
       animate={{
         backdropFilter: visible ? "blur(10px)" : "none",
         width: visible ? "90%" : "100%",
-        paddingRight: visible ? "12px" : "0px",
-        paddingLeft: visible ? "12px" : "0px",
-        borderRadius: visible ? "4px" : "2rem",
         y: visible ? 20 : 0,
       }}
       transition={{ type: "spring", stiffness: 200, damping: 50 }}
       className={cn(
-        "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
-        visible ? "bg-black/60 ring-2 ring-emerald-400/60 border border-emerald-400/20" : "",
+        "relative z-50 mx-auto w-full max-w-[calc(100vw-2rem)] self-start lg:hidden",
+        "rounded-full",
+        visible
+          ? "shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+          : "",
         className,
       )}
+      style={{ borderRadius: '9999px' }}
     >
-      {children}
+      <div
+        className={cn(
+          "w-full h-full px-4 py-3 flex flex-row items-center justify-between overflow-hidden",
+          "bg-black/80 rounded-full",
+        )}
+        style={{ borderRadius: '9999px' }}
+      >
+        {children}
+      </div>
     </motion.div>
   );
 };
@@ -183,11 +192,11 @@ export const MobileNavMenu = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
           className={cn(
-            "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-3 rounded-xl bg-neutral-950/95 border border-white/10 px-4 py-6 text-white shadow-[0_0_24px_rgba(0,0,0,0.4),_0_10px_40px_rgba(0,0,0,0.5)]",
+            "absolute left-0 right-0 top-full mt-2 z-[100] flex w-full flex-col items-start justify-start gap-3 rounded-xl bg-black/95 backdrop-blur-md px-4 py-6 text-white shadow-[0_0_24px_rgba(0,0,0,0.4),_0_10px_40px_rgba(0,0,0,0.5)] border border-white/10",
             className,
           )}
         >
@@ -212,10 +221,18 @@ export const MobileNavToggle = ({
   isOpen: boolean;
   onClick: () => void;
 }) => {
-  return isOpen ? (
-    <IconX className="text-white" onClick={onClick} />
-  ) : (
-    <IconMenu2 className="text-white" onClick={onClick} />
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 text-white"
+      aria-label={isOpen ? "Close menu" : "Open menu"}
+    >
+      {isOpen ? (
+        <IconX className="w-5 h-5" />
+      ) : (
+        <IconMenu2 className="w-5 h-5" />
+      )}
+    </button>
   );
 };
 

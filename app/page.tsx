@@ -155,6 +155,20 @@ function StepsCarousel() {
 }
 
 export default function HomePage() {
+  const [showPixelBlast, setShowPixelBlast] = useState(false);
+
+  // Defer heavy background mount to avoid visible re-init/flicker on refresh
+  useEffect(() => {
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setShowPixelBlast(true));
+    });
+    return () => {
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+    };
+  }, []);
 
   // Page-level toasts remain for global messages if needed
   function closeThenOpen(from: 'signin' | 'signup', to: 'signin' | 'signup') {
@@ -191,21 +205,6 @@ export default function HomePage() {
   const [isMobileSignInOpen, setIsMobileSignInOpen] = useState(false);
   const [isMobileSignUpOpen, setIsMobileSignUpOpen] = useState(false);
 
-  // Render PixelBlast immediately with a lightweight config, then enhance after idle
-  const [enhanceEffects, setEnhanceEffects] = useState(false);
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (media.matches) {
-      return () => {};
-    }
-    const ric = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
-    if (typeof ric === 'function') {
-      ric(() => setEnhanceEffects(true));
-      return () => {};
-    }
-    const id = window.setTimeout(() => setEnhanceEffects(true), 300);
-    return () => window.clearTimeout(id);
-  }, []);
 
   return (
     <Toast.Provider swipeDirection="right">
@@ -304,6 +303,7 @@ export default function HomePage() {
 
           <MobileNavMenu
             isOpen={isMobileMenuOpen}
+            onClose={() => setIsMobileMenuOpen(false)}
           >
             {navItems.map((item, idx) => (
               <a
@@ -315,6 +315,7 @@ export default function HomePage() {
                 <span className="block">{item.name}</span>
               </a>
             ))}
+            <Separator className="bg-white/20 my-2" />
             <div className="flex w-full flex-col gap-3">
               <button
                 onClick={() => {
@@ -340,10 +341,10 @@ export default function HomePage() {
 
         {/* Mobile Drawers - Outside of MobileNavMenu to avoid z-index issues */}
         <Drawer side="bottom" open={isMobileSignInOpen} onOpenChange={setIsMobileSignInOpen}>
-          <DrawerContent side="bottom" overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 64px)"} contentBottomOffset={64} overlayZIndex={20} contentZIndex={30}>
-            <div className="relative rounded-2xl border border-white/10 bg-neutral-950/70 backdrop-blur-xl p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_80px_rgba(0,0,0,0.55)]">
-              <div className="absolute inset-0 rounded-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
-              <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-20 bg-[linear-gradient(180deg,rgba(34,197,94,0.25),transparent)]" />
+          <DrawerContent side="bottom" overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 4px)"} contentBottomOffset={4} overlayZIndex={20} contentZIndex={30}>
+            <div className="relative rounded-t-2xl border border-white/10 bg-neutral-950/70 backdrop-blur-xl p-5 pb-8 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_80px_rgba(0,0,0,0.55)]">
+              <div className="absolute inset-0 rounded-t-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
+              <div className="pointer-events-none absolute -inset-px rounded-t-2xl opacity-20 bg-[linear-gradient(180deg,rgba(34,197,94,0.25),transparent)]" />
               <div className="relative z-10">
                 <DrawerHeader>
                   <DrawerTitle>Sign in to EcoTracker</DrawerTitle>
@@ -360,10 +361,10 @@ export default function HomePage() {
         </Drawer>
 
         <Drawer side="bottom" open={isMobileSignUpOpen} onOpenChange={setIsMobileSignUpOpen}>
-          <DrawerContent side="bottom" overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 64px)"} contentBottomOffset={64} overlayZIndex={20} contentZIndex={30}>
-            <div className="relative rounded-2xl border border-white/10 bg-neutral-950/70 backdrop-blur-xl p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_80px_rgba(0,0,0,0.55)]">
-              <div className="absolute inset-0 rounded-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
-              <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-20 bg-[linear-gradient(180deg,rgba(34,197,94,0.25),transparent)]" />
+          <DrawerContent side="bottom" overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 4px)"} contentBottomOffset={4} overlayZIndex={20} contentZIndex={30}>
+            <div className="relative rounded-t-2xl border border-white/10 bg-neutral-950/70 backdrop-blur-xl p-5 pb-8 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_80px_rgba(0,0,0,0.55)]">
+              <div className="absolute inset-0 rounded-t-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
+              <div className="pointer-events-none absolute -inset-px rounded-t-2xl opacity-20 bg-[linear-gradient(180deg,rgba(34,197,94,0.25),transparent)]" />
               <div className="relative z-10">
                 <DrawerHeader>
                   <DrawerTitle>Get Started</DrawerTitle>
@@ -383,27 +384,29 @@ export default function HomePage() {
       <section className="relative lg:sticky top-0 z-0 min-h-[100svh] sm:min-h-screen flex items-center justify-center px-3 sm:px-4 overflow-hidden bg-black -mt-16 sm:-mt-20 pt-16 sm:pt-20">
         {/* PixelBlast background with light blur backdrop */}
         <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-          <PixelBlast
-            variant="square"
-            pixelSize={6}
-            color="#22c55e"
-            patternScale={3}
-            patternDensity={1.2}
-            pixelSizeJitter={0.5}
-            enableRipples
-            rippleSpeed={0.3}
-            rippleThickness={0.12}
-            rippleIntensityScale={1.5}
-            liquid
-            liquidStrength={0.12}
-            liquidRadius={1.2}
-            liquidWobbleSpeed={5}
-            speed={0.3}
-            edgeFade={0.25}
-            transparent
-            className="w-full h-full"
-            
-          />
+          {showPixelBlast ? (
+            <PixelBlast
+              key="hero-pixelblast"
+              variant="square"
+              pixelSize={6}
+              color="#22c55e"
+              patternScale={3}
+              patternDensity={1.2}
+              pixelSizeJitter={0.5}
+              enableRipples
+              rippleSpeed={0.3}
+              rippleThickness={0.12}
+              rippleIntensityScale={1.5}
+              liquid
+              liquidStrength={0.12}
+              liquidRadius={1.2}
+              liquidWobbleSpeed={5}
+              speed={0.3}
+              edgeFade={0.25}
+              transparent
+              className="w-full h-full"
+            />
+          ) : null}
         </div>
         
         {/* Light blur backdrop for better text readability */}
