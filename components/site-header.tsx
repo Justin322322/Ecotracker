@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Separator } from "@/components/ui/separator"
+import { LeafIcon } from 'lucide-react'
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { LogoutDialog } from "@/components/ui/logout-dialog"
@@ -63,7 +64,10 @@ export function SiteHeader() {
       {/* Mobile header: simplified, fixed, larger sizing; no sidebar trigger */}
       <header className="md:hidden fixed top-0 inset-x-0 z-40 flex h-14 shrink-0 items-center border-b border-white/10 px-4 backdrop-blur supports-[backdrop-filter]:bg-black/60 bg-black/80">
         <div className="flex w-full items-center justify-between gap-2">
-          <h1 className="text-base font-semibold text-white">Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <LeafIcon className="w-5 h-5 text-green-500" />
+            <h1 className="text-base font-semibold text-white">Dashboard</h1>
+          </div>
           <Button
             onClick={handleLogoutClick}
             disabled={isLoggingOut}
@@ -85,8 +89,11 @@ export function SiteHeader() {
       <header className="hidden md:flex group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 h-12 shrink-0 items-center gap-2 border-b border-white/10 transition-[width,height] ease-linear">
         <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
           <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
-          <h1 className="text-base font-medium text-white">Carbon Footprint Dashboard</h1>
+          <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4 bg-white/10 [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.05),inset_0_-1px_0_0_rgba(0,0,0,0.35)]" />
+          <div className="flex items-center gap-2">
+            <LeafIcon className="w-5 h-5 text-green-500" />
+            <h1 className="text-base font-medium text-white">Carbon Footprint Dashboard</h1>
+          </div>
           <div className="ml-auto">
             <Button
               onClick={handleLogoutClick}

@@ -43,8 +43,9 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
     <nav
       className={cn(
         "md:hidden fixed inset-x-0 bottom-0 z-[1000]",
-        "bg-neutral-950",
+        "bg-black/40",
         "border-t border-white/10",
+        "rounded-t-2xl overflow-hidden",
         "px-2",
         className
       )}
@@ -53,8 +54,19 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
     >
       {/* Internal blur/background layer to avoid creating a stacking context on the nav itself */}
       <div
-        className="pointer-events-none absolute inset-0 supports-[backdrop-filter]:backdrop-blur-md bg-neutral-900/60"
+        className="pointer-events-none absolute inset-0 rounded-t-2xl supports-[backdrop-filter]:backdrop-blur-xl bg-white/10"
         aria-hidden
+        style={{ mixBlendMode: 'normal', borderRadius: 'inherit' }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-t-2xl [mask-image:linear-gradient(to_bottom,black,transparent_92%)] bg-gradient-to-b from-white/12 to-transparent"
+        aria-hidden
+        style={{ borderRadius: 'inherit' }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-t-2xl ring-1 ring-white/15 [box-shadow:inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-6px_18px_rgba(0,0,0,0.25)]"
+        aria-hidden
+        style={{ borderRadius: 'inherit' }}
       />
       <div className="relative mx-auto flex max-w-3xl items-stretch py-2">
         <Button
@@ -68,7 +80,7 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
         <div className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
         <Button
           variant="ghost"
-          className="flex h-12 flex-1 flex-col items-center justify-center gap-1 px-2 text-xs text-neutral-300 hover:text-white"
+          className="flex h-12 flex-1 flex-col items-center justify-center gap-1 px-4 mr-3 text-xs text-neutral-300 hover:text-white"
           onClick={() => scrollTo("dashboard-chart")}
         >
           <LineChartIcon className="h-5 w-5" />
@@ -77,7 +89,7 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
         <div className="mx-1 w-px self-stretch bg-white/10" aria-hidden />
         <Button
           variant="ghost"
-          className="flex h-12 flex-1 flex-col items-center justify-center gap-1 px-2 text-xs text-neutral-300 hover:text-white"
+          className="flex h-12 flex-1 flex-col items-center justify-center gap-1 px-4 ml-3 text-xs text-neutral-300 hover:text-white"
           onClick={() => scrollTo("dashboard-table")}
         >
           <TableIcon className="h-5 w-5" />
@@ -96,17 +108,19 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
         {/* Floating round button via portal to escape nav stacking context */}
         {mounted
           ? createPortal(
-              <div className="pointer-events-none fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center z-[1002] md:hidden" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}>
+              <div className="pointer-events-none fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center z-[1002] md:hidden" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}>
                 <Button
                   type="button"
                   size="icon"
-                  className="pointer-events-auto h-16 w-16 rounded-full bg-green-600 text-white shadow-lg shadow-green-500/30 hover:bg-green-500"
+                  className="pointer-events-auto relative h-16 w-16 rounded-full bg-green-600 text-white ring-2 ring-white ring-offset-2 ring-offset-black shadow-lg hover:bg-green-500"
                   onClick={() => setOpen(true)}
                   aria-label="Open quick menu"
                 >
-                  <PanelsTopLeftIcon className="h-7 w-7" />
+                  <div className="flex flex-col items-center justify-center leading-none">
+                    <PanelsTopLeftIcon className="h-6 w-6 mb-0.5" />
+                    <span className="text-[10px] font-medium">Menu</span>
+                  </div>
                 </Button>
-                <span className="mt-1 text-[10px] font-medium text-neutral-300">Menu</span>
               </div>,
               document.body
             )
@@ -122,8 +136,13 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
           overlayZIndex={800}
           contentZIndex={900}
           overlayClassName="pointer-events-none"
-          className="bg-black/90 text-white border-t border-white/10 md:hidden"
+          className="bg-black/90 text-white rounded-2xl border border-white/10 md:hidden overflow-hidden"
         >
+          {/* Enhanced green gradients: corners + edges */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-2xl opacity-30 [background:radial-gradient(180px_130px_at_0%_0%,rgba(34,197,94,0.28),transparent_60%),radial-gradient(180px_130px_at_100%_0%,rgba(34,197,94,0.28),transparent_60%),radial-gradient(180px_130px_at_0%_100%,rgba(34,197,94,0.18),transparent_60%),radial-gradient(180px_130px_at_100%_100%,rgba(34,197,94,0.18),transparent_60%),linear-gradient(to_right,rgba(34,197,94,0.08),transparent_35%,transparent_65%,rgba(34,197,94,0.08)),linear-gradient(to_bottom,rgba(34,197,94,0.06),transparent_35%,transparent_65%,rgba(34,197,94,0.06))]"
+          />
           <SheetHeader>
             <SheetTitle className="text-white">Quick Menu</SheetTitle>
           </SheetHeader>

@@ -19,7 +19,7 @@ export function LogoutSheet({ isOpen, onClose, onConfirm, isLoggingOut = false }
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="bg-black/90 text-white border-t border-white/20">
+      <SheetContent side="top" className="bg-black/90 text-white border-b border-white/20">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 text-white">
             <LogOutIcon className="w-5 h-5 text-red-400" />
