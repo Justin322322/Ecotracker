@@ -6,16 +6,13 @@ import { LeafIcon } from 'lucide-react'
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { LogoutDialog } from "@/components/ui/logout-dialog"
-import { LogoutSheet } from "@/components/ui/logout-sheet"
 import { LogOutIcon, Loader2Icon } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
-import { useIsMobile } from '@/hooks/use-mobile'
 
 export function SiteHeader() {
   // Removed page-local overlay; page handles loading. Keep minimal state if needed later.
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const { isLoggingOut, setIsLoggingOut } = useUser();
-  const isMobile = useIsMobile();
 
   const handleLogoutClick = () => {
     setShowLogoutDialog(true);
@@ -113,22 +110,13 @@ export function SiteHeader() {
         </div>
       </header>
       
-      {/* Render one or the other, not both (Dialog portals ignore CSS hiding) */}
-      {isMobile ? (
-        <LogoutSheet
-          isOpen={showLogoutDialog}
-          onClose={handleLogoutCancel}
-          onConfirm={handleLogoutConfirm}
-          isLoggingOut={isLoggingOut}
-        />
-      ) : (
-        <LogoutDialog
-          isOpen={showLogoutDialog}
-          onClose={handleLogoutCancel}
-          onConfirm={handleLogoutConfirm}
-          isLoggingOut={isLoggingOut}
-        />
-      )}
+      {/* Always use centered dialog */}
+      <LogoutDialog
+        isOpen={showLogoutDialog}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        isLoggingOut={isLoggingOut}
+      />
       
       {/* Logout Loading Screen removed; handled at page level */}
     </>

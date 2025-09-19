@@ -52,22 +52,10 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom))" }}
       aria-label="Mobile bottom navigation"
     >
-      {/* Internal blur/background layer to avoid creating a stacking context on the nav itself */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-t-2xl supports-[backdrop-filter]:backdrop-blur-xl bg-white/10"
-        aria-hidden
-        style={{ mixBlendMode: 'normal', borderRadius: 'inherit' }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 rounded-t-2xl [mask-image:linear-gradient(to_bottom,black,transparent_92%)] bg-gradient-to-b from-white/12 to-transparent"
-        aria-hidden
-        style={{ borderRadius: 'inherit' }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 rounded-t-2xl ring-1 ring-white/15 [box-shadow:inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-6px_18px_rgba(0,0,0,0.25)]"
-        aria-hidden
-        style={{ borderRadius: 'inherit' }}
-      />
+      {/* Glass effect layers */}
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-t-2xl pointer-events-none" />
+      <div className="absolute inset-0 rounded-t-2xl bg-gradient-to-t from-transparent via-white/5 to-white/10 opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 rounded-t-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
       <div className="relative mx-auto flex max-w-3xl items-stretch py-2">
         <Button
           variant="ghost"

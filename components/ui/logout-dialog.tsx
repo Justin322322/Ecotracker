@@ -20,7 +20,10 @@ interface LogoutDialogProps {
 export function LogoutDialog({ isOpen, onClose, onConfirm, isLoggingOut = false }: LogoutDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-black/90 border-white/20 text-white">
+      <DialogContent className="sm:max-w-md text-white rounded-2xl overflow-hidden bg-white/10 backdrop-blur-md ring-1 ring-inset ring-white/20">
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/5 opacity-40" />
+        </div>
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <LogOutIcon className="w-5 h-5 text-red-400" />

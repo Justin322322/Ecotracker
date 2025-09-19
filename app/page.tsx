@@ -15,7 +15,10 @@ import {
   MobileNavMenu,
 } from '@/components/ui/resizable-navbar';
 import dynamic from 'next/dynamic';
-import PixelBlast from '@/components/PixelBlast';
+const PixelBlast = dynamic(() => import('@/components/PixelBlast'), {
+  ssr: false,
+  loading: () => null,
+});
 
 // Lazy load heavy components
 const WorldMapLite = dynamic(() => import('@/components/ui/world-map-lite'), {
@@ -187,6 +190,22 @@ export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSignInOpen, setIsMobileSignInOpen] = useState(false);
   const [isMobileSignUpOpen, setIsMobileSignUpOpen] = useState(false);
+
+  // Render PixelBlast immediately with a lightweight config, then enhance after idle
+  const [enhanceEffects, setEnhanceEffects] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (media.matches) {
+      return () => {};
+    }
+    const ric = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
+    if (typeof ric === 'function') {
+      ric(() => setEnhanceEffects(true));
+      return () => {};
+    }
+    const id = window.setTimeout(() => setEnhanceEffects(true), 300);
+    return () => window.clearTimeout(id);
+  }, []);
 
   return (
     <Toast.Provider swipeDirection="right">
@@ -366,16 +385,24 @@ export default function HomePage() {
         <div className="absolute inset-0 w-full h-full flex items-center justify-center">
           <PixelBlast
             variant="square"
-            pixelSize={4}
+            pixelSize={6}
             color="#22c55e"
-            patternScale={1.5}
-            patternDensity={0.8}
-            enableRipples={true}
-            rippleIntensityScale={0.6}
-            rippleThickness={0.15}
-            rippleSpeed={0.4}
-            edgeFade={0.3}
+            patternScale={3}
+            patternDensity={1.2}
+            pixelSizeJitter={0.5}
+            enableRipples
+            rippleSpeed={0.3}
+            rippleThickness={0.12}
+            rippleIntensityScale={1.5}
+            liquid
+            liquidStrength={0.12}
+            liquidRadius={1.2}
+            liquidWobbleSpeed={5}
+            speed={0.3}
+            edgeFade={0.25}
+            transparent
             className="w-full h-full"
+            
           />
         </div>
         
