@@ -97,13 +97,29 @@ export const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
     side?: "top" | "bottom" | "left" | "right";
+    bottomOffset?: number | string;
+    overlayBottomOffset?: number | string;
+    contentBottomOffset?: number | string;
+    overlayZIndex?: number;
+    contentZIndex?: number;
+    overlayClassName?: string;
   }
->(({ side = "bottom", className, children, ...props }, ref) => {
+>(({ side = "bottom", className, children, bottomOffset, overlayBottomOffset, contentBottomOffset, overlayZIndex, contentZIndex, overlayClassName, ...props }, ref) => {
   const { keyboardHeight, isKeyboardOpen } = useMobileKeyboardAdjustment();
+  const resolvedOverlayBottom = overlayBottomOffset ?? bottomOffset;
+  const resolvedContentBottom = contentBottomOffset ?? bottomOffset;
   
   return (
     <DrawerPrimitive.Portal>
-      <DrawerOverlay />
+      <DrawerOverlay
+        className={overlayClassName}
+        style={{
+          zIndex: overlayZIndex,
+          ...(side === "bottom" && resolvedOverlayBottom !== undefined
+            ? { bottom: typeof resolvedOverlayBottom === 'number' ? `${resolvedOverlayBottom}px` : resolvedOverlayBottom }
+            : {}),
+        }}
+      />
       <DrawerPrimitive.Content
         ref={ref}
         className={cn(
@@ -117,6 +133,7 @@ export const DrawerContent = React.forwardRef<
           className
         )}
         style={{
+          ...(contentZIndex !== undefined ? { zIndex: contentZIndex } : {}),
           // Adjust position when keyboard is open on mobile
           ...(side === "bottom" && isKeyboardOpen && {
             bottom: `${keyboardHeight}px`,
@@ -126,6 +143,9 @@ export const DrawerContent = React.forwardRef<
             top: `${keyboardHeight}px`,
             maxHeight: `calc(100vh - ${keyboardHeight}px)`,
           }),
+          ...(side === "bottom" && resolvedContentBottom !== undefined
+            ? { bottom: typeof resolvedContentBottom === 'number' ? `${resolvedContentBottom}px` : resolvedContentBottom }
+            : {}),
         }}
         {...props}
       >

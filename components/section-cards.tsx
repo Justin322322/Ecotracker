@@ -19,49 +19,57 @@ export function SectionCards() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  // Update active dot based on nearest slide while scrolling (robust across gaps/snap)
+  // Track the most visible slide using IntersectionObserver for reliable active dot
   useEffect(() => {
     const root = trackRef.current;
     if (!root) return;
-    let raf = 0;
 
-    const update = () => {
-      const left = root.scrollLeft;
-      let nearestIndex = 0;
-      let nearestDist = Number.POSITIVE_INFINITY;
-      for (let i = 0; i < slideRefs.current.length; i++) {
-        const el = slideRefs.current[i];
-        if (!el) continue;
-        const dist = Math.abs(left - el.offsetLeft);
-        if (dist < nearestDist) {
-          nearestDist = dist;
-          nearestIndex = i;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let bestIndex = activeIndex;
+        let bestRatio = -1;
+        for (const entry of entries) {
+          const index = slideRefs.current.findIndex((el) => el === entry.target);
+          if (index !== -1 && entry.intersectionRatio > bestRatio) {
+            bestRatio = entry.intersectionRatio;
+            bestIndex = index;
+          }
         }
+        if (bestIndex !== activeIndex) {
+          setActiveIndex(bestIndex);
+        }
+      },
+      {
+        root,
+        threshold: [0.25, 0.5, 0.75, 1],
       }
-      setActiveIndex(nearestIndex);
-    };
+    );
 
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    };
+    // Observe all slides
+    slideRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
 
-    // Initial compute and listeners
-    update();
-    root.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    const onResize = () => {
+      // Allow IO to recompute after layout changes
+      // No-op body; IO will emit updates on its own
+    };
+    window.addEventListener('resize', onResize);
+
     return () => {
-      cancelAnimationFrame(raf);
-      root.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      observer.disconnect();
+      window.removeEventListener('resize', onResize);
     };
-  }, []);
+    // Include slides length so when slides count changes we rebind observers
+  }, [activeIndex, slideRefs.current.length]);
 
   const scrollToSlide = (index: number) => {
     const root = trackRef.current;
     const target = slideRefs.current[index];
     if (!root || !target) return;
     root.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+    // Optimistically set the active index so dot updates immediately on click
+    setActiveIndex(index);
   };
 
   // Prepare slides unconditionally so hook order stays stable across renders

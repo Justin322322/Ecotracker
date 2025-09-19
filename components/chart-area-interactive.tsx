@@ -101,7 +101,7 @@ export function ChartAreaInteractive() {
           </span>
           <span className="@[540px]/card:hidden">Daily CO₂ (kg)</span>
         </CardDescription>
-        <div className="absolute right-4 top-4">
+        <div className="mt-2 w-full md:absolute md:right-4 md:top-4 md:mt-0 md:w-auto">
           <ToggleGroup
             type="single"
             value={timeRange}
@@ -121,7 +121,7 @@ export function ChartAreaInteractive() {
           </ToggleGroup>
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger
-              className="@[767px]/card:hidden flex w-40"
+              className="@[767px]/card:hidden w-full md:w-40"
               aria-label="Select a value"
             >
               <SelectValue placeholder="Last 3 months" />
@@ -140,12 +140,12 @@ export function ChartAreaInteractive() {
           </Select>
         </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="pl-0 pr-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={filteredData}>
+          <AreaChart data={filteredData} margin={isMobile ? { left: -8, right: 0 } : undefined}>
             <defs>
               <linearGradient id="fillEmissions" x1="0" y1="0" x2="0" y2="1">
                 <stop

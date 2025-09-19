@@ -19,12 +19,12 @@ import PixelBlast from '@/components/PixelBlast';
 
 // Lazy load heavy components
 const WorldMapLite = dynamic(() => import('@/components/ui/world-map-lite'), {
-  loading: () => <div className="aspect-[16/9] bg-neutral-900/50 rounded-lg animate-pulse" />,
+  loading: () => null,
   ssr: false
 });
 
 const FeaturesSection = dynamic(() => import('@/components/ui/features-section'), {
-  loading: () => <div className="h-96 bg-neutral-900/50 rounded-lg animate-pulse" />
+  loading: () => null
 });
 
 // PixelBlast is statically imported above for instant render
@@ -221,7 +221,7 @@ export default function HomePage() {
                   Sign In
                 </NavbarButton>
               </DrawerTrigger>
-              <DrawerContent side="right">
+              <DrawerContent side="right" overlayZIndex={90} contentZIndex={95}>
                 <div className="relative w-full">
                   <div className="relative rounded-2xl border border-white/10 bg-neutral-950/60 backdrop-blur-xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_30px_120px_rgba(0,0,0,0.55)]">
                     <div className="absolute inset-0 rounded-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
@@ -251,7 +251,7 @@ export default function HomePage() {
                   Get Started
                 </NavbarButton>
               </DrawerTrigger>
-              <DrawerContent side="right">
+              <DrawerContent side="right" overlayZIndex={90} contentZIndex={95}>
                 <div className="relative w-full">
                   <div className="relative rounded-2xl border border-white/10 bg-neutral-950/60 backdrop-blur-xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_30px_120px_rgba(0,0,0,0.55)]">
                     <div className="absolute inset-0 rounded-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
@@ -321,7 +321,7 @@ export default function HomePage() {
 
         {/* Mobile Drawers - Outside of MobileNavMenu to avoid z-index issues */}
         <Drawer side="bottom" open={isMobileSignInOpen} onOpenChange={setIsMobileSignInOpen}>
-          <DrawerContent side="bottom">
+          <DrawerContent side="bottom" overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 64px)"} contentBottomOffset={64} overlayZIndex={20} contentZIndex={30}>
             <div className="relative rounded-2xl border border-white/10 bg-neutral-950/70 backdrop-blur-xl p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_80px_rgba(0,0,0,0.55)]">
               <div className="absolute inset-0 rounded-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
               <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-20 bg-[linear-gradient(180deg,rgba(34,197,94,0.25),transparent)]" />
@@ -341,7 +341,7 @@ export default function HomePage() {
         </Drawer>
 
         <Drawer side="bottom" open={isMobileSignUpOpen} onOpenChange={setIsMobileSignUpOpen}>
-          <DrawerContent side="bottom">
+          <DrawerContent side="bottom" overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 64px)"} contentBottomOffset={64} overlayZIndex={20} contentZIndex={30}>
             <div className="relative rounded-2xl border border-white/10 bg-neutral-950/70 backdrop-blur-xl p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_80px_rgba(0,0,0,0.55)]">
               <div className="absolute inset-0 rounded-2xl bg-cover bg-center opacity-30" style={{ backgroundImage: `url('/assets/bg.png')` }} />
               <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-20 bg-[linear-gradient(180deg,rgba(34,197,94,0.25),transparent)]" />

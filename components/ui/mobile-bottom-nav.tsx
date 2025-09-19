@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useCallback } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { EnhancedDrawer as Drawer, DrawerContent } from "@/components/ui/enhanced-drawer";
 import {
   HomeIcon,
   LineChartIcon,
@@ -24,6 +26,8 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ className }: MobileBottomNavProps) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
   const scrollTo = useCallback((targetId: string) => {
     if (targetId === 'dashboard-top') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -35,11 +39,11 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
     }
   }, []);
 
-  return (
+  const navElement = (
     <nav
       className={cn(
-        "md:hidden fixed inset-x-0 bottom-0 z-40",
-        "backdrop-blur supports-[backdrop-filter]:bg-neutral-900/70 bg-neutral-900/85",
+        "md:hidden fixed inset-x-0 bottom-0 z-[1000]",
+        "bg-neutral-950",
         "border-t border-white/10",
         "px-2",
         className
@@ -47,6 +51,11 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom))" }}
       aria-label="Mobile bottom navigation"
     >
+      {/* Internal blur/background layer to avoid creating a stacking context on the nav itself */}
+      <div
+        className="pointer-events-none absolute inset-0 supports-[backdrop-filter]:backdrop-blur-md bg-neutral-900/60"
+        aria-hidden
+      />
       <div className="relative mx-auto flex max-w-3xl items-stretch py-2">
         <Button
           variant="ghost"
@@ -84,24 +93,37 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
           Menu
         </Button>
 
-        {/* Center floating round button to open sidebar sheet */}
-        <div className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center">
-          <Button
-            type="button"
-            size="icon"
-            className="pointer-events-auto h-16 w-16 rounded-full bg-green-600 text-white shadow-lg shadow-green-500/30 hover:bg-green-500"
-            onClick={() => setOpen(true)}
-            aria-label="Open quick menu"
-          >
-            <PanelsTopLeftIcon className="h-7 w-7" />
-          </Button>
-          <span className="mt-1 text-[10px] font-medium text-neutral-300">Menu</span>
-        </div>
+        {/* Floating round button via portal to escape nav stacking context */}
+        {mounted
+          ? createPortal(
+              <div className="pointer-events-none fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center z-[1002] md:hidden" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}>
+                <Button
+                  type="button"
+                  size="icon"
+                  className="pointer-events-auto h-16 w-16 rounded-full bg-green-600 text-white shadow-lg shadow-green-500/30 hover:bg-green-500"
+                  onClick={() => setOpen(true)}
+                  aria-label="Open quick menu"
+                >
+                  <PanelsTopLeftIcon className="h-7 w-7" />
+                </Button>
+                <span className="mt-1 text-[10px] font-medium text-neutral-300">Menu</span>
+              </div>,
+              document.body
+            )
+          : null}
       </div>
 
-      {/* Mobile sidebar sheet */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="bg-black/90 text-white border-t border-white/10">
+      {/* Mobile quick menu drawer with animation */}
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent
+          side="bottom"
+          overlayBottomOffset={"calc(env(safe-area-inset-bottom) + 64px)"}
+          contentBottomOffset={64}
+          overlayZIndex={800}
+          contentZIndex={900}
+          overlayClassName="pointer-events-none"
+          className="bg-black/90 text-white border-t border-white/10 md:hidden"
+        >
           <SheetHeader>
             <SheetTitle className="text-white">Quick Menu</SheetTitle>
           </SheetHeader>
@@ -136,10 +158,12 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
               <span>Data Export</span>
             </button>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </nav>
   );
+
+  return mounted ? createPortal(navElement, document.body) : navElement;
 }
 
 export default MobileBottomNav;
