@@ -57,8 +57,91 @@ A modern, responsive web application for tracking and analyzing carbon footprint
 
 ### Prerequisites
 
-- Node.js 18+ 
-- Bun (recommended) or npm/yarn
+#### Required Software
+- **Node.js 18+** - JavaScript runtime environment
+- **Bun** (recommended) - Fast JavaScript runtime and package manager
+  - *Alternative*: npm or yarn can be used instead
+- **MySQL 8.0+** - Database server
+- **Git** - Version control system for cloning the repository
+
+#### Optional (for Database Management)
+- **phpMyAdmin** - Web-based database administration tool
+- **XAMPP/WAMP/MAMP** - Local development environment with MySQL
+
+#### System Requirements
+- **Operating System**: Windows 10+, macOS 10.15+, or Linux
+- **RAM**: 4GB minimum, 8GB recommended
+- **Storage**: 2GB free space for installation and dependencies
+
+### Software Installation Guide
+
+#### 1. Install Node.js (Required)
+```bash
+# Download from: https://nodejs.org/
+
+# Verify installation
+node --version    # Should show v18.0.0 or higher
+npm --version     # Should show 9.0.0 or higher
+```
+
+#### 2. Install Bun (Recommended)
+```bash
+# Install Bun (fastest option)
+curl -fsSL https://bun.sh/install | bash
+
+# Alternative: Install via npm
+npm install -g bun
+
+# Verify installation
+bun --version     # Should show 1.0.0 or higher
+```
+
+#### 3. Install MySQL (Required)
+**Windows:**
+```bash
+# Download MySQL Installer from: https://dev.mysql.com/downloads/installer/
+# Or install via Chocolatey:
+choco install mysql
+```
+
+**macOS:**
+```bash
+# Using Homebrew
+brew install mysql
+
+# Start MySQL service
+brew services start mysql
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install mysql-server
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```
+
+#### 4. Install Git (Required)
+**Windows:**
+```bash
+# Download from: https://git-scm.com/download/win
+# Or via Chocolatey:
+choco install git
+```
+
+**macOS:**
+```bash
+# Already included with Xcode Command Line Tools
+xcode-select --install
+# Or via Homebrew:
+brew install git
+```
+
+**Linux:**
+```bash
+sudo apt install git  # Ubuntu/Debian
+sudo yum install git  # CentOS/RHEL
+```
 
 ### Installation
 
