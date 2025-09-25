@@ -1,8 +1,8 @@
-# 🌱 EcoTracker - Carbon Footprint Tracker
+# EcoTracker - Carbon Footprint Tracker
 
-A modern, responsive landing page for a carbon footprint tracking application built with Next.js 15, React 19, and Shadcn UI.
+A modern, responsive web application for tracking and analyzing carbon footprints, built with Next.js 15, React 19, and Shadcn UI.
 
-## 🚀 Features
+## Features
 
 - **Modern Stack**: Built with Next.js 15, React 19, and TypeScript 5.6+
 - **Beautiful UI**: Shadcn UI components with Tailwind CSS
@@ -11,7 +11,7 @@ A modern, responsive landing page for a carbon footprint tracking application bu
 - **Accessibility**: WCAG compliant components
 - **SEO Ready**: Optimized metadata and semantic HTML
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript 5.6+
@@ -19,7 +19,41 @@ A modern, responsive landing page for a carbon footprint tracking application bu
 - **Icons**: Lucide React
 - **Package Manager**: Bun (recommended) or npm/yarn
 
-## 📦 Getting Started
+## Screenshots
+
+| Desktop View | Mobile View | Tablet View |
+|-------------|-------------|-------------|
+| ![Desktop](./screenshots/desktop.png) | ![Mobile](./screenshots/mobile.png) | ![Tablet](./screenshots/tablet.png) |
+
+## User Interface
+
+### Desktop UI Components
+
+| Component | Description | Features |
+|-----------|-------------|----------|
+| Navigation Bar | Main navigation with user menu | Responsive design, user authentication |
+| Hero Section | Landing page introduction | Call-to-action buttons, animations |
+| Dashboard | Main application interface | Data visualization, charts, forms |
+| Sidebar | Navigation and quick actions | Collapsible menu, icons, tooltips |
+
+### Mobile UI Components
+
+| Component | Description | Features |
+|-----------|-------------|----------|
+| Mobile Navigation | Hamburger menu and navigation | Bottom navigation, swipe gestures |
+| Touch-Friendly Forms | Optimized input forms | Large touch targets, validation feedback |
+| Mobile Dashboard | Responsive data display | Card-based layout, swipeable views |
+| Mobile Modals | Touch-optimized dialogs | Full-screen modals, gesture controls |
+
+### Responsive Breakpoints
+
+| Breakpoint | Size | Description |
+|------------|------|-------------|
+| Mobile | < 768px | Single column layout, touch-optimized |
+| Tablet | 768px - 1024px | Two-column layout, medium interactions |
+| Desktop | > 1024px | Multi-column layout, full features |
+
+## Getting Started
 
 ### Prerequisites
 
@@ -54,7 +88,7 @@ bun run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Database (MySQL via phpMyAdmin)
+### Database Setup (MySQL via phpMyAdmin)
 
 1. Install MySQL and phpMyAdmin locally (e.g., XAMPP/WAMP) and start MySQL.
 2. Open phpMyAdmin and create a database named `ecotracker` (or your choice).
@@ -84,7 +118,7 @@ bun run db:init
 
 This reads `.env.local` and will create the database (if missing) and the `users` table.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── app/                    # Next.js App Router
@@ -101,7 +135,7 @@ This reads `.env.local` and will create the database (if missing) and the `users
 └── config files         # TypeScript, Tailwind, etc.
 ```
 
-## 🎨 Design Features
+## Design Features
 
 ### Landing Page Sections
 
@@ -126,7 +160,7 @@ This reads `.env.local` and will create the database (if missing) and the `users
 - **Background**: Subtle green-to-blue gradient
 - **Text**: High contrast for accessibility
 
-## 🚀 Available Scripts
+## Available Scripts
 
 ```bash
 # Development
@@ -148,7 +182,7 @@ bun run test             # Run tests
 bun run test:watch       # Run tests in watch mode
 ```
 
-## 🎯 Performance Features
+## Performance Features
 
 - **Server Components**: Default server-side rendering
 - **Optimized Images**: Next.js Image component ready
@@ -156,7 +190,7 @@ bun run test:watch       # Run tests in watch mode
 - **Streaming**: Built-in streaming SSR
 - **Partial Prerendering**: Next.js 15 PPR support
 
-## 🌐 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 
@@ -169,7 +203,7 @@ bun run test:watch       # Run tests in watch mode
 1. Build the project: `bun run build`
 2. Deploy the `.next` folder to your hosting platform
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
@@ -177,11 +211,11 @@ bun run test:watch       # Run tests in watch mode
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Shadcn UI](https://ui.shadcn.com/) for the beautiful component library
 - [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
