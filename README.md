@@ -23,7 +23,7 @@ A modern, responsive web application for tracking and analyzing carbon footprint
 
 | Desktop View | Mobile View | Tablet View |
 |-------------|-------------|-------------|
-| ![Desktop](./screenshots/desktop.png) | ![Mobile](./screenshots/mobile.png) | ![Tablet](./screenshots/tablet.png) |
+| ![Desktop Screenshot](https://github.com/user-attachments/assets/f080cea2-f0ab-486a-850f-2a68d503b9c5) | ![Mobile Screenshot](https://github.com/user-attachments/assets/22f3f6cc-3643-4bb0-9552-c2bd68f908ec) | ![Tablet Screenshot](https://github.com/user-attachments/assets/500d4738-6ddf-4a1b-8aff-5fd885add106) |
 
 ## User Interface
 
