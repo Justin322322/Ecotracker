@@ -1,5 +1,65 @@
 # Carbon Footprint Tracker - Technical Documentation
 
+## Table of Contents
+
+### **Core Documentation**
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+  - [Core Framework & Runtime](#core-framework--runtime)
+  - [Frontend Technologies](#frontend-technologies)
+  - [Backend & Database](#backend--database)
+  - [Development & Build Tools](#development--build-tools)
+  - [Production & Deployment](#production--deployment)
+
+### **Architecture & Implementation**
+- [Application Architecture](#application-architecture)
+  - [High-Level Architecture](#high-level-architecture)
+  - [File Structure Organization](#file-structure-organization)
+- [Authentication System](#authentication-system)
+  - [Authentication Flow](#authentication-flow)
+  - [Security Implementation](#security-implementation)
+  - [Security Flow Details](#security-flow-details)
+- [Core Functions & Implementation](#core-functions--implementation)
+  - [User Registration (`/api/register`)](#1-user-registration-apiregister)
+  - [User Authentication (`/api/login`)](#2-user-authentication-apilogin)
+  - [Session Management (`/api/me`)](#3-session-management-apime)
+  - [User Logout (`/api/logout`)](#4-user-logout-apilogout)
+
+### **System Design**
+- [Error Handling System](#error-handling-system)
+  - [Error Handling Architecture](#error-handling-architecture)
+  - [API Error Handling](#api-error-handling)
+  - [Client-Side Error Handling](#client-side-error-handling)
+- [Database Design](#database-design)
+  - [Users Table Schema](#users-table-schema)
+  - [Security Features](#security-features)
+  - [Connection Pooling](#connection-pooling)
+- [Component Architecture](#component-architecture)
+  - [Component Categories](#component-categories)
+  - [State Management Flow](#state-management-flow)
+
+### **Security & Performance**
+- [Security Analysis](#security-analysis)
+  - [Authentication Security](#authentication-security)
+  - [Input Validation Security](#input-validation-security)
+  - [Attack Prevention](#attack-prevention)
+- [Performance Optimizations](#performance-optimizations)
+  - [Frontend Performance](#frontend-performance)
+  - [Backend Performance](#backend-performance)
+
+### **Deployment & Production**
+- [Deployment & Production](#deployment--production)
+  - [Production Configuration](#production-configuration)
+  - [Monitoring & Logging](#monitoring--logging)
+
+### **Summary**
+- [Conclusion](#conclusion)
+  - [Security Excellence](#security-excellence)
+  - [Performance Optimization](#performance-optimization)
+  - [Developer Experience](#developer-experience)
+
+---
+
 ## Overview
 
 The Carbon Footprint Tracker (EcoTracker) is a modern web application built with Next.js 15 and React 19 that enables users to track, analyze, and reduce their environmental impact. This document provides comprehensive technical documentation including architecture, security analysis, and implementation details.
@@ -79,58 +139,25 @@ Deployment:
 ### High-Level Architecture
 
 ```mermaid
-graph TB
-    subgraph "Application Layer"
-        A[Next.js 15<br/>App Router]
-        B[React 19<br/>Concurrent Features]
-        C[TypeScript 5<br/>Strict Mode]
-    end
+sequenceDiagram
+    participant UI as Frontend
+    participant API as Next.js API
+    participant DB as MySQL Database
+    participant AUTH as Auth Layer
 
-    subgraph "UI Framework"
-        D[Shadcn UI v2]
-        E[Tailwind CSS<br/>3.4+]
-        F[Radix UI<br/>Primitives]
-        G[Lucide<br/>Icons]
-    end
+    UI->>API: User Request (App Router)
+    API->>API: React 19 Processing
+    API->>API: TypeScript Validation
+    API->>DB: Database Queries
+    API->>AUTH: Security Checks
+    AUTH->>API: Validation Results
+    API->>UI: Response Rendering
 
-    subgraph "State & Data"
-        H[MySQL 8.0+<br/>Database]
-        I[TanStack<br/>Query]
-        J[React Hook<br/>Form + Zod]
-    end
-
-    subgraph "Security Layer"
-        K[bcryptjs<br/>Hashing]
-        L[HTTP-Only<br/>Cookies]
-        M[Middleware<br/>Protection]
-    end
-
-    A --> D
-    B --> D
-    C --> D
-    D --> E
-    D --> F
-    D --> G
-    D --> H
-    D --> I
-    D --> J
-    K --> H
-    L --> H
-    M --> H
-
-    style A fill:#e1f5fe
-    style B fill:#e1f5fe
-    style C fill:#e1f5fe
-    style D fill:#f3e5f5
-    style E fill:#f3e5f5
-    style F fill:#f3e5f5
-    style G fill:#f3e5f5
-    style H fill:#c8e6c9
-    style I fill:#c8e6c9
-    style J fill:#c8e6c9
-    style K fill:#ffcdd2
-    style L fill:#ffcdd2
-    style M fill:#ffcdd2
+    Note over UI,DB: Architecture Flow
+    UI->>API: Shadcn UI + Tailwind CSS
+    API->>API: TanStack Query + React Hook Form
+    DB->>API: bcryptjs + HTTP-Only Cookies
+    AUTH->>API: Middleware Protection
 ```
 
 ### File Structure Organization
@@ -166,28 +193,28 @@ carbonfootprint/
 ### Authentication Flow
 
 ```mermaid
-flowchart TD
-    A[User Login Form] --> B[Input Validation<br/>Zod Schema]
-    B --> C[Artificial Delay<br/>1.5s - Anti-brute force]
-    C --> D[Database Query<br/>SELECT user FROM users WHERE email = ?]
-    D --> E[Password Verification<br/>bcrypt.compare()]
-    E -->|Valid| F[Session Creation<br/>HTTP-Only Cookie]
-    E -->|Invalid| G[Generic Error<br/>Invalid credentials]
-    F --> H[Client State Update<br/>User Context]
-    H --> I[Dashboard Redirect]
+sequenceDiagram
+    participant UI as Login UI
+    participant API as Auth API
+    participant DB as Database
+    participant BC as bcryptjs
 
-    G --> J[Return 401<br/>Unauthorized]
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#f3e5f5
-    style D fill:#e8f5e8
-    style E fill:#fff3e0
-    style F fill:#e1f5fe
-    style G fill:#ffebee
-    style H fill:#e8f5e8
-    style I fill:#e0f2f1
-    style J fill:#ffebee
+    UI->>API: POST /api/login {email, password}
+    API->>API: Zod Schema Validation
+    API->>API: Artificial Delay (1.5s)
+    API->>DB: SELECT user WHERE email = ?
+    DB->>API: User data (hashed password)
+    API->>BC: bcrypt.compare(password, hash)
+    BC->>API: Verification result
+    alt Valid Credentials
+        API->>API: Create HTTP-Only Cookie
+        API->>UI: Set session cookie + user data
+        UI->>UI: Update React Context
+        UI->>UI: Redirect to dashboard
+    else Invalid Credentials
+        API->>UI: Return 401 Unauthorized
+        UI->>UI: Show error message
+    end
 ```
 
 ### Security Implementation
@@ -324,44 +351,27 @@ POST /api/logout
 ### Error Handling Architecture
 
 ```mermaid
-flowchart TB
-    subgraph "API Layer"
-        A[API Routes] --> B[Error Types<br/>& Logging]
-        B --> C[Response<br/>Formatting]
-    end
+sequenceDiagram
+    participant API as API Routes
+    participant ERR as Error Handler
+    participant UI as Client Components
+    participant BOUND as Error Boundaries
 
-    subgraph "Client Layer"
-        D[Client<br/>Components] --> E[Error<br/>Boundaries]
-        E --> F[User<br/>Feedback]
-    end
+    API->>ERR: API Error Occurs
+    ERR->>ERR: Log Error Details
+    ERR->>API: Format Error Response
+    API->>UI: Return Error Response
 
-    subgraph "Error Categories"
-        G[Validation<br/>Errors 400]
-        H[Auth<br/>Errors 401]
-        I[Server<br/>Errors 500]
-        J[Network<br/>Errors]
-    end
+    UI->>BOUND: Component Error
+    BOUND->>BOUND: Catch Error
+    BOUND->>UI: Render Fallback UI
+    UI->>UI: Show User Feedback
 
-    C --> G
-    C --> H
-    C --> I
-    C --> J
-
-    G --> E
-    H --> E
-    I --> E
-    J --> E
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e1f5fe
-    style D fill:#f3e5f5
-    style E fill:#e8f5e8
-    style F fill:#e0f2f1
-    style G fill:#ffcdd2
-    style H fill:#ffcdd2
-    style I fill:#ffcdd2
-    style J fill:#ffcdd2
+    Note over API,UI: Error Categories
+    ERR->>UI: 400 Validation Errors
+    ERR->>UI: 401 Authentication Errors
+    ERR->>UI: 500 Server Errors
+    ERR->>UI: Network Errors
 ```
 
 ### API Error Handling
@@ -535,39 +545,26 @@ const pool = mysql.createPool({
 ### State Management Flow
 
 ```mermaid
-flowchart LR
-    subgraph "Server State"
-        A[API Response] --> B[TanStack<br/>Query Cache]
-        B --> C[React<br/>Context]
-    end
+sequenceDiagram
+    participant API as API Layer
+    participant CACHE as TanStack Query
+    participant CTX as React Context
+    participant COMP as Components
+    participant HOOKS as Custom Hooks
 
-    subgraph "Client State"
-        D[Components] --> E[Custom<br/>Hooks]
-        E --> F[Local<br/>State]
-    end
+    API->>CACHE: API Response Data
+    CACHE->>CTX: Cached Server State
+    CTX->>COMP: Global State Updates
 
-    subgraph "State Types"
-        G[Server State<br/>API Data]
-        H[Global State<br/>User Session]
-        I[Local State<br/>UI Interactions]
-        J[Form State<br/>Input Data]
-    end
+    COMP->>HOOKS: User Interactions
+    HOOKS->>COMP: Local State Changes
+    HOOKS->>COMP: Form State Updates
 
-    B --> G
-    C --> H
-    F --> I
-    F --> J
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e1f5fe
-    style D fill:#f3e5f5
-    style E fill:#e8f5e8
-    style F fill:#e0f2f1
-    style G fill:#c8e6c9
-    style H fill:#c8e6c9
-    style I fill:#c8e6c9
-    style J fill:#c8e6c9
+    Note over API,HOOKS: State Categories
+    CACHE->>COMP: Server State (API Data)
+    CTX->>COMP: Global State (User Session)
+    HOOKS->>COMP: Local State (UI Interactions)
+    HOOKS->>COMP: Form State (Input Data)
 ```
 
 ---
@@ -579,44 +576,35 @@ flowchart LR
 #### 1. Password Security
 
 ```mermaid
-flowchart TD
-    subgraph "Password Hashing"
-        A[Raw Password] --> B[bcrypt.hash()<br/>10 salt rounds]
-        B --> C[Hashed Password<br/>$2b$10$...]
-        C --> D[Database Storage]
+sequenceDiagram
+    participant USER as User
+    participant API as Auth API
+    participant BC as bcryptjs
+    participant DB as Database
+
+    Note over USER,DB: Password Registration
+    USER->>API: POST /api/register {password}
+    API->>BC: bcrypt.hash(password, 10)
+    BC->>API: Generate $2b$10$... hash
+    API->>DB: Store hash in database
+    DB->>API: Confirmation
+
+    Note over USER,DB: Password Verification
+    USER->>API: POST /api/login {password}
+    API->>DB: Retrieve stored hash
+    DB->>API: Return hash
+    API->>BC: bcrypt.compare(password, hash)
+    BC->>API: Timing-safe comparison
+    alt Password Match
+        API->>USER: Authentication Success
+    else Password Mismatch
+        API->>USER: Authentication Failure
     end
 
-    subgraph "Password Verification"
-        E[User Input<br/>Password] --> F[bcrypt.compare()<br/>Timing-safe]
-        F --> G[Retrieved<br/>Hash]
-        F --> H[Comparison<br/>Result]
-        H -->|Match| I[Authentication<br/>Success]
-        H -->|No Match| J[Authentication<br/>Failure]
-    end
-
-    subgraph "Security Features"
-        K[Timing Attack<br/>Protection]
-        L[Salt Rounds<br/>10 iterations]
-        M[Hash Length<br/>60+ characters]
-    end
-
-    B --> K
-    B --> L
-    C --> M
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e1f5fe
-    style D fill:#e8f5e8
-    style E fill:#f3e5f5
-    style F fill:#fff3e0
-    style G fill:#e1f5fe
-    style H fill:#e8f5e8
-    style I fill:#c8e6c9
-    style J fill:#ffcdd2
-    style K fill:#fff3e0
-    style L fill:#fff3e0
-    style M fill:#fff3e0
+    Note over API,DB: Security Features
+    BC->>API: Timing Attack Protection
+    BC->>API: Salt Rounds (10 iterations)
+    API->>API: Hash Length (60+ characters)
 ```
 
 **Security Measures:**
@@ -628,50 +616,41 @@ flowchart TD
 #### 2. Session Security
 
 ```mermaid
-flowchart TD
-    subgraph "Session Creation"
-        A[User Login<br/>Success] --> B[Session Data<br/>Creation]
-        B --> C[JSON Serialization<br/>User ID, Email, Name]
-        C --> D[HTTP-Only Cookie<br/>Set-Cookie Header]
+sequenceDiagram
+    participant UI as User Interface
+    participant API as Auth API
+    participant MW as Middleware
+    participant BROWSER as Browser
+
+    Note over UI,API: Session Creation
+    UI->>API: Successful Login
+    API->>API: Create Session Data
+    API->>API: JSON Serialize User Info
+    API->>BROWSER: Set HTTP-Only Cookie
+    BROWSER->>UI: Store Cookie
+
+    Note over API,BROWSER: Cookie Security
+    API->>BROWSER: httpOnly: true (XSS Protection)
+    API->>BROWSER: secure: true (HTTPS Only)
+    API->>BROWSER: sameSite: 'lax' (CSRF Protection)
+    API->>BROWSER: maxAge: 7 days (Session Duration)
+    API->>BROWSER: path: '/' (Site-wide)
+
+    Note over UI,MW: Session Validation
+    UI->>MW: Request Protected Route
+    MW->>BROWSER: Extract Session Cookie
+    MW->>MW: Validate Session Data
+    alt Valid Session
+        MW->>UI: Allow Access
+    else Invalid Session
+        MW->>UI: Redirect to Login
     end
 
-    subgraph "Cookie Attributes"
-        E[httpOnly: true<br/>XSS Protection] --> D
-        F[secure: true<br/>HTTPS Only] --> D
-        G[sameSite: 'lax'<br/>CSRF Protection] --> D
-        H[maxAge: 7 days<br/>Session Duration] --> D
-        I[path: '/'<br/>Site-wide] --> D
-    end
-
-    subgraph "Session Validation"
-        J[Protected Route<br/>Request] --> K[Middleware<br/>Check]
-        K --> L[Valid<br/>Session?]
-        L -->|Yes| M[Allow<br/>Access]
-        L -->|No| N[Redirect<br/>to Login]
-    end
-
-    subgraph "Session Termination"
-        O[Logout Request] --> P[Cookie<br/>Expiration]
-        P --> Q[State<br/>Cleanup]
-    end
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e1f5fe
-    style D fill:#e8f5e8
-    style E fill:#f3e5f5
-    style F fill:#f3e5f5
-    style G fill:#f3e5f5
-    style H fill:#f3e5f5
-    style I fill:#f3e5f5
-    style J fill:#e0f2f1
-    style K fill:#fff3e0
-    style L fill:#e8f5e8
-    style M fill:#c8e6c9
-    style N fill:#ffcdd2
-    style O fill:#e0f2f1
-    style P fill:#fff3e0
-    style Q fill:#e8f5e8
+    Note over UI,API: Session Termination
+    UI->>API: POST /api/logout
+    API->>BROWSER: Expire Session Cookie
+    BROWSER->>API: Clear Cookie Data
+    API->>UI: Logout Complete
 ```
 
 **Security Features:**
@@ -683,57 +662,37 @@ flowchart TD
 #### 3. Route Protection
 
 ```mermaid
-flowchart TD
-    subgraph "Multi-Layer Protection"
-        A[User Request<br/>/dashboard/*] --> B[Middleware<br/>Layer 1]
-        B --> C[Valid<br/>Session?]
-        C -->|No| D[Redirect<br/>to Login]
-        C -->|Yes| E[Client-Side<br/>Guard Layer 2]
-        E --> F[API<br/>Validation?]
-        F -->|No| G[Redirect<br/>to Login]
-        F -->|Yes| H[Allow<br/>Access]
+sequenceDiagram
+    participant UI as User
+    participant MW as Server Middleware
+    participant GUARD as Client Guards
+    participant API as API Validation
+
+    UI->>MW: Request /dashboard/*
+    MW->>MW: Check Session Cookie
+    alt Valid Session
+        MW->>GUARD: Allow Route Access
+        GUARD->>API: Validate User Permissions
+        alt Valid Permissions
+            API->>UI: Grant Access
+        else Invalid Permissions
+            API->>UI: Redirect to Login
+        end
+    else Invalid Session
+        MW->>UI: Redirect to Login
     end
 
-    subgraph "Protection Layers"
-        I[1. Server Middleware<br/>Primary Protection]
-        J[2. Client Guards<br/>Backup Protection]
-        K[3. API Validation<br/>Tertiary Protection]
-        L[4. Error Boundaries<br/>UI Protection]
-    end
+    Note over UI,API: Protection Layers
+    MW->>UI: 1. Server Middleware (Primary)
+    GUARD->>UI: 2. Client Guards (Backup)
+    API->>UI: 3. API Validation (Tertiary)
+    API->>UI: 4. Error Boundaries (UI)
 
-    subgraph "Security Benefits"
-        M[Defense in Depth<br/>Multiple Fail-safes]
-        N[Server Enforcement<br/>Cannot be Bypassed]
-        U[Client Fallbacks<br/>Better UX]
-        V[Graceful Degradation<br/>Error Recovery]
-    end
-
-    B --> I
-    E --> J
-    F --> K
-    H --> L
-
-    I --> M
-    I --> N
-    J --> U
-    L --> V
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e8f5e8
-    style D fill:#ffcdd2
-    style E fill:#f3e5f5
-    style F fill:#fff3e0
-    style G fill:#ffcdd2
-    style H fill:#c8e6c9
-    style I fill:#e1f5fe
-    style J fill:#e1f5fe
-    style K fill:#e1f5fe
-    style L fill:#e1f5fe
-    style M fill:#c8e6c9
-    style N fill:#c8e6c9
-    style U fill:#c8e6c9
-    style V fill:#c8e6c9
+    Note over UI,API: Security Benefits
+    MW->>UI: Defense in Depth
+    MW->>UI: Server Enforcement
+    GUARD->>UI: Client Fallbacks
+    API->>UI: Graceful Degradation
 ```
 
 **Security Benefits:**
@@ -862,52 +821,38 @@ Performance Features:
 ### Production Configuration
 
 ```mermaid
-graph TB
-    subgraph "Environment Setup"
-        A[Environment Variables<br/>Production Config] --> B[Database<br/>Connection]
-        A --> C[Security<br/>Settings]
-        A --> D[Performance<br/>Optimizations]
+sequenceDiagram
+    participant DEV as Developer
+    participant CONFIG as Environment Config
+    participant SEC as Security Layer
+    participant DEPLOY as Deployment Platform
+
+    DEV->>CONFIG: Set Environment Variables
+    CONFIG->>CONFIG: Database Connection
+    CONFIG->>CONFIG: Security Settings
+    CONFIG->>CONFIG: Performance Optimizations
+
+    CONFIG->>SEC: Configure Security Headers
+    SEC->>SEC: X-Frame-Options: DENY
+    SEC->>SEC: Content-Security-Policy
+    SEC->>SEC: X-Content-Type: nosniff
+    SEC->>SEC: Referrer-Policy: strict-origin
+
+    DEV->>DEPLOY: Choose Deployment Platform
+    alt Vercel (Recommended)
+        DEPLOY->>DEPLOY: Automatic Deployments
+        DEPLOY->>DEPLOY: CDN Integration
+        DEPLOY->>DEPLOY: SSL/TLS Automatic
+    else Other Platforms
+        DEPLOY->>DEPLOY: Manual Build Process
+        DEPLOY->>DEPLOY: Static Assets Deployment
     end
 
-    subgraph "Security Headers"
-        E[X-Frame-Options<br/>DENY] --> F[Content-Security<br/>Policy]
-        E --> G[X-Content-Type<br/>nosniff]
-        E --> H[Referrer-Policy<br/>strict-origin]
-    end
-
-    subgraph "Deployment Options"
-        I[Vercel<br/>Recommended] --> J[Automatic<br/>Deployments]
-        I --> K[CDN<br/>Integration]
-        I --> L[SSL/TLS<br/>Automatic]
-        M[Other Platforms<br/>Manual Setup] --> N[Build Process<br/>Required]
-        M --> O[Static Assets<br/>Deployment]
-    end
-
-    subgraph "Production Features"
-        P[Image<br/>Optimization] --> Q[Bundle<br/>Splitting]
-        P --> R[Code<br/>Minification]
-        P --> S[Compression<br/>gzip/brotli]
-    end
-
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e1f5fe
-    style D fill:#e8f5e8
-    style E fill:#f3e5f5
-    style F fill:#f3e5f5
-    style G fill:#f3e5f5
-    style H fill:#f3e5f5
-    style I fill:#c8e6c9
-    style J fill:#c8e6c9
-    style K fill:#c8e6c9
-    style L fill:#c8e6c9
-    style M fill:#e8f5e8
-    style N fill:#e8f5e8
-    style O fill:#e8f5e8
-    style P fill:#e0f2f1
-    style Q fill:#e0f2f1
-    style R fill:#e0f2f1
-    style S fill:#e0f2f1
+    Note over CONFIG,DEPLOY: Production Features
+    CONFIG->>DEPLOY: Image Optimization
+    CONFIG->>DEPLOY: Bundle Splitting
+    CONFIG->>DEPLOY: Code Minification
+    CONFIG->>DEPLOY: Compression (gzip/brotli)
 ```
 
 #### 1. Environment Variables

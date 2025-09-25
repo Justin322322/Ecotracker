@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ToastProvider } from '@/components/common/Toast';
 import { dispatchToast } from '@/components/common/toast-bus';
-import { LoginTransition } from '@/components/ui/login-transition';
-import { useLoginTransition } from '@/hooks/use-app-initialization';
 import { useUser } from '@/contexts/UserContext';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
@@ -24,7 +22,6 @@ function SignUpForm({ buttonClassName, fullWidth, onSwitchToSignIn, onClose }: S
   const [showPassword, setShowPassword] = useState<boolean>(false);
   
   const router = useRouter();
-  const { isVisible, startTransition, completeTransition } = useLoginTransition();
   const { setUser } = useUser();
 
   async function handleRegister() {
@@ -55,14 +52,23 @@ function SignUpForm({ buttonClassName, fullWidth, onSwitchToSignIn, onClose }: S
           id: user.id
         });
       }
-      
-      // Start the login transition animation for new user
-      startTransition();
-      
+
       // Clear form
       setName('');
       setEmail('');
       setPassword('');
+
+      // Show success message
+      dispatchToast({
+        title: 'Account created successfully!',
+        description: 'Welcome! You are now logged in.',
+        variant: 'success'
+      });
+
+      // Small delay to show success message before navigation
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500);
     } catch {
       dispatchToast({ title: 'Network error', description: 'Please try again later.', variant: 'error' });
     } finally {
@@ -70,22 +76,9 @@ function SignUpForm({ buttonClassName, fullWidth, onSwitchToSignIn, onClose }: S
     }
   }
 
-  // Handle transition completion
-  const handleTransitionComplete = () => {
-    completeTransition();
-    onClose?.();
-    // Navigate to dashboard immediately - the dashboard will show full-screen loading
-    router.push('/dashboard');
-  };
-
   return (
     <>
       <ToastProvider>
-        {/* Login Transition Animation */}
-        <LoginTransition
-          isVisible={isVisible}
-          onComplete={handleTransitionComplete}
-        />
         <div className="relative space-y-4 mt-2">
         <div className="relative">
           <input 
