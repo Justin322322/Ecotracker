@@ -170,7 +170,7 @@ flowchart TD
     A[User Login Form] --> B[Input Validation<br/>Zod Schema]
     B --> C[Artificial Delay<br/>1.5s - Anti-brute force]
     C --> D[Database Query<br/>SELECT user FROM users WHERE email = ?]
-    D --> E(Password Verification<br/>bcrypt.compare())
+    D --> E[Password Verification<br/>bcrypt.compare()]
     E -->|Valid| F[Session Creation<br/>HTTP-Only Cookie]
     E -->|Invalid| G[Generic Error<br/>Invalid credentials]
     F --> H[Client State Update<br/>User Context]
@@ -589,7 +589,7 @@ flowchart TD
     subgraph "Password Verification"
         E[User Input<br/>Password] --> F[bcrypt.compare()<br/>Timing-safe]
         F --> G[Retrieved<br/>Hash]
-        F --> H{Comparison<br/>Result}
+        F --> H[Comparison<br/>Result]
         H -->|Match| I[Authentication<br/>Success]
         H -->|No Match| J[Authentication<br/>Failure]
     end
@@ -645,7 +645,7 @@ flowchart TD
 
     subgraph "Session Validation"
         J[Protected Route<br/>Request] --> K[Middleware<br/>Check]
-        K --> L{Valid<br/>Session?}
+        K --> L[Valid<br/>Session?]
         L -->|Yes| M[Allow<br/>Access]
         L -->|No| N[Redirect<br/>to Login]
     end
@@ -686,10 +686,10 @@ flowchart TD
 flowchart TD
     subgraph "Multi-Layer Protection"
         A[User Request<br/>/dashboard/*] --> B[Middleware<br/>Layer 1]
-        B --> C{Valid<br/>Session?}
+        B --> C[Valid<br/>Session?]
         C -->|No| D[Redirect<br/>to Login]
         C -->|Yes| E[Client-Side<br/>Guard Layer 2]
-        E --> F{API<br/>Validation?}
+        E --> F[API<br/>Validation?]
         F -->|No| G[Redirect<br/>to Login]
         F -->|Yes| H[Allow<br/>Access]
     end
