@@ -170,7 +170,7 @@ flowchart TD
     A[User Login Form] --> B[Input Validation<br/>Zod Schema]
     B --> C[Artificial Delay<br/>1.5s - Anti-brute force]
     C --> D[Database Query<br/>SELECT user FROM users WHERE email = ?]
-    D --> E{Password Verification<br/>bcrypt.compare()}
+    D --> E(Password Verification<br/>bcrypt.compare())
     E -->|Valid| F[Session Creation<br/>HTTP-Only Cookie]
     E -->|Invalid| G[Generic Error<br/>Invalid credentials]
     F --> H[Client State Update<br/>User Context]
