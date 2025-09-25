@@ -15,7 +15,7 @@
 
 ### Authentication & Security
 - [Authentication System](#authentication-system)
-- [Security Implementation](#security-implementation)
+  - [Security Implementation](#security-implementation)
 - [Database Design](#database-design)
 
 ### Core Features
@@ -24,7 +24,7 @@
 - [User Onboarding](#user-onboarding)
 
 ### Performance & Deployment
-- [Performance Optimization](#performance-optimization)
+  - [Performance Optimization](#performance-optimization)
 - [Deployment Guide](#deployment-guide)
 
 ### Reference

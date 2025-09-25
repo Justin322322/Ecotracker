@@ -11,10 +11,13 @@ interface SignUpFormProps {
   buttonClassName?: string;
   fullWidth?: boolean;
   onSwitchToSignIn?: () => void;
-  onClose?: () => void;
+  onClose?: () => void; // Required by interface contract, not used in this component
 }
 
 function SignUpForm({ buttonClassName, fullWidth, onSwitchToSignIn, onClose }: SignUpFormProps) {
+  // onClose is part of the interface contract for consistency with other forms
+  // It's not used in this component but required for type compatibility
+  void onClose; // Mark as intentionally referenced to satisfy ESLint
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
