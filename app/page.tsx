@@ -46,8 +46,9 @@ import {
   DrawerFooter,
   DrawerClose,
 } from '@/components/ui/enhanced-drawer';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Linkedin, Github, Instagram, Leaf } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as Toast from '@radix-ui/react-toast';
 import SignUpForm from '@/components/forms/SignUpForm';
 import SignInForm from '@/components/forms/SignInForm';
@@ -117,9 +118,20 @@ function StepsCarousel() {
       >
         <div className="pointer-events-none absolute inset-0 opacity-60 [mask-image:radial-gradient(60%_40%_at_50%_0%,black,transparent)] bg-[radial-gradient(600px_240px_at_50%_-10%,rgba(34,197,94,0.12),transparent)]" />
 
-        <div key={activeIndex} className="relative grid grid-cols-1 md:grid-cols-[auto,1fr] gap-4 md:gap-8 items-center animate-fade-slide-up">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 shrink-0 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{active.num}</span>
+        <div className="relative grid grid-cols-1 md:grid-cols-[auto,1fr] gap-4 md:gap-8 items-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 shrink-0 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeIndex}
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ x: 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -50, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{active.num}</span>
+              </motion.div>
+            </AnimatePresence>
           </div>
           <div>
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-2 sm:mb-3 text-white">{active.title}</h3>
@@ -536,55 +548,94 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="relative z-10 py-16 sm:py-20 px-4 bg-black">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10">
-            <div>
-              <h3 className="font-semibold mb-4 text-white text-lg">Connect</h3>
-              <div className="flex space-x-4">
-                <Button variant="ghost" size="sm" className="text-neutral-400 hover:text-white hover:bg-white/10 transition-all duration-300">Twitter</Button>
-                <Button variant="ghost" size="sm" className="text-neutral-400 hover:text-white hover:bg-white/10 transition-all duration-300">LinkedIn</Button>
-                <Button variant="ghost" size="sm" className="text-neutral-400 hover:text-white hover:bg-white/10 transition-all duration-300">GitHub</Button>
+        {/* Main footer card container - full width */}
+        <div className="relative w-full">
+          {/* Card background with rounded edges and gradual color change */}
+          <div className="relative rounded-2xl bg-gradient-to-b from-white/8 via-white/5 to-white/3 backdrop-blur-sm overflow-hidden">
+            {/* Green highlight effect at top */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-green-500/15 via-green-500/8 to-transparent opacity-70 pointer-events-none" />
+
+            {/* Content */}
+            <div className="relative z-10 p-8 sm:p-12">
+              <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12">
+            {/* Logo and Social Section */}
+            <div className="md:col-span-1">
+              <div className="mb-6">
+                <h3 className="text-white text-xl font-semibold mb-2 flex items-center gap-2 group">
+                  <Leaf className="w-6 h-6 text-green-400 group-hover:text-green-300 transition-colors duration-300" />
+                  EcoTracker
+                </h3>
+              </div>
+              <div className="flex space-x-3">
+                <button className="text-neutral-400 hover:text-green-400 hover:scale-110 transition-all duration-300 p-2 rounded-lg">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+                  </svg>
+                </button>
+                <button className="text-neutral-400 hover:text-green-400 hover:scale-110 transition-all duration-300 p-2 rounded-lg">
+                  <Linkedin className="w-5 h-5" />
+                </button>
+                <button className="text-neutral-400 hover:text-green-400 hover:scale-110 transition-all duration-300 p-2 rounded-lg">
+                  <Github className="w-5 h-5" />
+                </button>
+                <button className="text-neutral-400 hover:text-green-400 hover:scale-110 transition-all duration-300 p-2 rounded-lg">
+                  <Instagram className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
+            {/* Product Section */}
             <div>
-              <h3 className="font-semibold mb-4 text-white text-lg">Product</h3>
-              <ul className="space-y-2 text-neutral-300">
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">API</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Mobile Apps</a></li>
+              <h3 className="font-semibold mb-4 text-white text-lg group">
+                <span className="group-hover:text-green-300 transition-colors duration-300">Product</span>
+              </h3>
+              <ul className="space-y-3 text-neutral-300">
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Pricing</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Downloads</a></li>
               </ul>
             </div>
 
+            {/* Resources Section */}
             <div>
-              <h3 className="font-semibold mb-4 text-white text-lg">Company</h3>
-              <ul className="space-y-2 text-neutral-300">
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Contact</a></li>
+              <h3 className="font-semibold mb-4 text-white text-lg group">
+                <span className="group-hover:text-green-300 transition-colors duration-300">Resources</span>
+              </h3>
+              <ul className="space-y-3 text-neutral-300">
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Docs</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Blog</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">FAQs</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Changelog</a></li>
               </ul>
             </div>
 
+            {/* Terms Section */}
             <div>
-              <h3 className="font-semibold mb-4 text-white text-lg">Support</h3>
-              <ul className="space-y-2 text-neutral-300">
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300 font-light">Status</a></li>
+              <h3 className="font-semibold mb-4 text-white text-lg group">
+                <span className="group-hover:text-green-300 transition-colors duration-300">Terms</span>
+              </h3>
+              <ul className="space-y-3 text-neutral-300">
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Privacy Policy</a></li>
               </ul>
             </div>
-          </div>
 
-          <Separator className="my-8 bg-white/10" />
-
-          <div className="flex flex-col md:flex-row justify-between items-center text-neutral-400">
-            <p className="font-light">&copy; 2025 EcoTracker. All rights reserved.</p>
-            <p className="mt-4 md:mt-0 font-light">Built with 💚 for the planet</p>
+            {/* Connect Section */}
+            <div>
+              <h3 className="font-semibold mb-4 text-white text-lg group">
+                <span className="group-hover:text-green-300 transition-colors duration-300">Connect</span>
+              </h3>
+              <ul className="space-y-3 text-neutral-300">
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Contact</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">Forum</a></li>
+                <li><a href="#" className="hover:text-green-400 hover:translate-x-1 transition-all duration-300 font-light text-sm block py-1 px-2 rounded">About us</a></li>
+              </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
       </footer>
     </main>
     </Toast.Provider>
