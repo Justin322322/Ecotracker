@@ -1,24 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { CSSProperties, useEffect, useRef, useState, useMemo, PropsWithChildren } from 'react';
 
-// Lazy load mathjs to improve initial bundle size
-let math: any = null;
-const loadMath = async () => {
-  if (!math) {
-    try {
-      math = await import('mathjs');
-    } catch (error) {
-      console.warn('Failed to load mathjs:', error);
-      // Fallback to basic math operations
-      math = {
-        pow: Math.pow,
-        round: Math.round,
-      };
-    }
-  }
-  return math;
-};
-
 type GradualBlurProps = PropsWithChildren<{
   position?: 'top' | 'bottom' | 'left' | 'right';
   strength?: number;
@@ -186,12 +168,6 @@ const useIntersectionObserver = (ref: React.RefObject<HTMLDivElement>, shouldObs
 const GradualBlur: React.FC<GradualBlurProps> = props => {
   const containerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const [isHovered, setIsHovered] = useState(false);
-  const [mathLoaded, setMathLoaded] = useState(false);
-
-  // Load math.js when component mounts
-  useEffect(() => {
-    loadMath().then(() => setMathLoaded(true));
-  }, []);
 
   const config = useMemo(() => {
     const presetConfig: Partial<GradualBlurProps> = props.preset ? (PRESETS[props.preset] ?? {}) : {};
@@ -204,8 +180,6 @@ const GradualBlur: React.FC<GradualBlurProps> = props => {
   const isVisible = useIntersectionObserver(containerRef, config.animated === 'scroll');
 
   const blurDivs = useMemo(() => {
-    if (!mathLoaded) return []; // Don't render until math is loaded
-    
     const divs: React.ReactNode[] = [];
     const increment = 100 / config.divCount;
     const currentStrength =
@@ -219,15 +193,16 @@ const GradualBlur: React.FC<GradualBlurProps> = props => {
 
       let blurValue: number;
       if (config.exponential) {
-        blurValue = Number(math.pow(2, progress * 4)) * 0.0625 * currentStrength;
+        // Simplified exponential calculation without mathjs
+        blurValue = Math.pow(2, progress * 4) * 0.0625 * currentStrength;
       } else {
         blurValue = 0.0625 * (progress * config.divCount + 1) * currentStrength;
       }
 
-      const p1 = math.round((increment * i - increment) * 10) / 10;
-      const p2 = math.round(increment * i * 10) / 10;
-      const p3 = math.round((increment * i + increment) * 10) / 10;
-      const p4 = math.round((increment * i + increment * 2) * 10) / 10;
+      const p1 = Math.round((increment * i - increment) * 10) / 10;
+      const p2 = Math.round(increment * i * 10) / 10;
+      const p3 = Math.round((increment * i + increment) * 10) / 10;
+      const p4 = Math.round((increment * i + increment * 2) * 10) / 10;
 
       let gradient = `transparent ${p1}%, black ${p2}%`;
       if (p3 <= 100) gradient += `, black ${p3}%`;
@@ -250,7 +225,7 @@ const GradualBlur: React.FC<GradualBlurProps> = props => {
     }
 
     return divs;
-  }, [config, isHovered, mathLoaded]);
+  }, [config, isHovered]);
 
   const containerStyle: CSSProperties = useMemo(() => {
     const isVertical = ['top', 'bottom'].includes(config.position);

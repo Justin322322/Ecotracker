@@ -24,9 +24,7 @@ const nextConfig = {
       'lucide-react', 
       'motion',
       '@radix-ui/react-toast',
-      '@radix-ui/react-dialog',
-      'gsap',
-      'mathjs'
+      '@radix-ui/react-dialog'
     ],
   },
   // Turbopack configuration (Next.js 15.5+ format)
@@ -46,10 +44,6 @@ const nextConfig = {
       // Only add aliases if they're actually needed
       config.resolve.alias = {
         ...config.resolve.alias,
-        // Remove problematic ScrollTrigger alias that's causing HMR issues
-        // 'gsap/ScrollTrigger': 'gsap/dist/ScrollTrigger',
-        'gsap/TextPlugin': 'gsap/dist/TextPlugin',
-        'gsap/ScrollToPlugin': 'gsap/dist/ScrollToPlugin',
       };
       
       // Fix chunk inference issues
@@ -61,7 +55,7 @@ const nextConfig = {
         },
       };
       
-      // Handle mathjs module resolution
+      // Handle module resolution
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,

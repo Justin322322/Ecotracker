@@ -2,8 +2,6 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
-import { useGSAP } from "@/hooks/use-gsap";
 import { 
   BarChart3, 
   Calculator, 
@@ -26,10 +24,6 @@ const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function FeaturesSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement[]>([]);
-  const { gsap, gsapLoaded } = useGSAP();
-
   const features = [
     {
       title: "Real-time Tracking",
@@ -73,101 +67,33 @@ export default function FeaturesSection() {
     },
   ];
 
-  useEffect(() => {
-    if (!containerRef.current || featuresRef.current.length === 0 || !gsapLoaded || !gsap) return;
-    const reduced = prefersReducedMotion();
-    const touch = isTouchDevice();
-    const small = isSmallScreen();
-
-    const ctx = gsap.context(() => {
-      featuresRef.current.forEach((feature, index) => {
-        if (reduced) {
-          gsap.set(feature, { opacity: 1, y: 0, scale: 1 });
-          return;
-        }
-
-        // For now, use simple fade-in for all devices to avoid ScrollTrigger issues
-        gsap.fromTo(
-          feature,
-          { opacity: 0, y: 16, scale: 0.99 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            delay: index * 0.04,
-            ease: "power3.out",
-          }
-        );
-
-        // Hover animations only for non-touch devices
-        if (!touch && !small) {
-          const hoverElement = feature.querySelector(".feature-hover");
-          const iconElement = feature.querySelector(".feature-icon");
-          const titleElement = feature.querySelector(".feature-title");
-          const barElement = feature.querySelector(".feature-bar");
-
-          if (hoverElement && iconElement && titleElement && barElement) {
-            const hoverTl = gsap.timeline({ paused: true });
-
-            hoverTl
-              .to(hoverElement, { opacity: 1, duration: 0.22, ease: "power2.out" })
-              .to(iconElement, { scale: 1.05, rotation: 0, duration: 0.22, ease: "power2.out" }, 0)
-              .to(titleElement, { x: 4, duration: 0.22, ease: "power2.out" }, 0)
-              .to(barElement, { height: "1.5rem", backgroundColor: "#22c55e", duration: 0.22, ease: "power2.out" }, 0);
-
-            const onEnter = () => hoverTl.play();
-            const onLeave = () => hoverTl.reverse();
-            feature.addEventListener("mouseenter", onEnter);
-            feature.addEventListener("mouseleave", onLeave);
-
-            // Cleanup listeners
-            ctx.add(() => {
-              feature.removeEventListener("mouseenter", onEnter);
-              feature.removeEventListener("mouseleave", onLeave);
-            });
-          }
-        }
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, [gsapLoaded, gsap]);
-
   return (
-    <div
-      ref={containerRef}
-      className="grid grid-cols-1 lg:grid-cols-4 gap-0 relative z-10 py-8 lg:py-8 max-w-[1200px] mx-auto"
-    >
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 relative z-10 py-8 lg:py-8 max-w-[1200px] mx-auto">
       {features.map((feature, index) => (
         <Feature
           key={feature.title}
           {...feature}
           index={index}
           totalFeatures={features.length}
-          ref={(el) => {
-            if (el) featuresRef.current[index] = el;
-          }}
         />
       ))}
     </div>
   );
 }
 
-const Feature = React.forwardRef<
-  HTMLDivElement,
-  {
-    title: string;
-    description: string;
-    icon: React.ComponentType<{ className?: string }>;
-    index: number;
-    // totalFeatures left for future use to maintain API; underscore to avoid lint warning
-    totalFeatures?: number;
-  }
->(({ title, description, icon: Icon, index }, ref) => {
+const Feature = React.memo<{
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  index: number;
+  totalFeatures?: number;
+}>(({ title, description, icon: Icon, index }) => {
+  const reduced = prefersReducedMotion();
+  const touch = isTouchDevice();
+  const small = isSmallScreen();
+
   return (
     <div
-      ref={ref}
       className={cn(
         // Mobile: Card-like design with proper spacing
         "flex flex-col p-6 lg:p-0 relative group/feature",
@@ -180,8 +106,16 @@ const Feature = React.forwardRef<
 
         // Desktop border logic (preserved)
         (index === 0 || index === 4) && "lg:border-l lg:dark:border-neutral-800/50",
-        index < 4 && "lg:border-b lg:dark:border-neutral-800/50"
+        index < 4 && "lg:border-b lg:dark:border-neutral-800/50",
+
+        // CSS-based animations instead of GSAP
+        !reduced && "animate-in fade-in slide-in-from-bottom-4",
+        !reduced && `duration-600 delay-[${index * 40}ms]`
       )}
+      style={{
+        animationDelay: !reduced ? `${index * 40}ms` : undefined,
+        animationFillMode: 'both'
+      }}
     >
       {/* Mobile: Card background with gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-xl lg:hidden" />
@@ -191,7 +125,10 @@ const Feature = React.forwardRef<
         {/* Icon */}
         <div className="mb-4 lg:mb-3 lg:px-0">
           <Icon
-            className="feature-icon text-4xl lg:text-2xl text-emerald-500 transition-transform duration-200 group-hover/feature:scale-110"
+            className={cn(
+              "text-4xl lg:text-2xl text-emerald-500 transition-all duration-200",
+              !touch && !small && "group-hover/feature:scale-110 group-hover/feature:rotate-3"
+            )}
             aria-hidden
           />
         </div>
@@ -199,8 +136,11 @@ const Feature = React.forwardRef<
         {/* Title */}
         <div className="mb-3 lg:mb-2 lg:px-0 lg:relative">
           {/* Desktop hover bar */}
-          <div className="hidden lg:block feature-bar absolute -left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-gradient-to-b from-emerald-500 to-emerald-500/20 transform origin-left scale-x-0 transition-all duration-300 ease-out group-hover/feature:scale-x-100" />
-          <h3 className="text-xl lg:text-lg font-semibold text-white transition-all duration-300 lg:pl-4 group-hover/feature:text-emerald-400 leading-tight">
+          <div className="hidden lg:block absolute -left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-gradient-to-b from-emerald-500 to-emerald-500/20 transform origin-left scale-x-0 transition-all duration-300 ease-out group-hover/feature:scale-x-100" />
+          <h3 className={cn(
+            "text-xl lg:text-lg font-semibold text-white transition-all duration-300 lg:pl-4 leading-tight",
+            !touch && !small && "group-hover/feature:text-emerald-400 group-hover/feature:translate-x-1"
+          )}>
             {title}
           </h3>
         </div>
@@ -212,7 +152,7 @@ const Feature = React.forwardRef<
       </div>
 
       {/* Desktop hover background */}
-      <div className="hidden lg:block feature-hover absolute inset-0 bg-gradient-to-br from-emerald-600/10 via-emerald-500/5 to-transparent opacity-0 group-hover/feature:opacity-100 transition-all duration-300 ease-out" />
+      <div className="hidden lg:block absolute inset-0 bg-gradient-to-br from-emerald-600/10 via-emerald-500/5 to-transparent opacity-0 group-hover/feature:opacity-100 transition-all duration-300 ease-out" />
     </div>
   );
 });

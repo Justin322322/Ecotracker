@@ -340,14 +340,14 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
   color = '#B19EEF',
   className,
   style,
-  antialias = true,
+  antialias = false, // Disable antialias by default for better performance
   patternScale = 2,
   patternDensity = 1,
-  liquid = false,
+  liquid = false, // Disable liquid effects by default
   liquidStrength = 0.1,
   liquidRadius = 1,
   pixelSizeJitter = 0,
-  enableRipples = true,
+  enableRipples = false, // Disable ripples by default
   rippleIntensityScale = 1,
   rippleThickness = 0.1,
   rippleSpeed = 0.3,
@@ -428,7 +428,7 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
         threeRef.current = null;
       }
       const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl2', { antialias, alpha: true });
+      const gl = canvas.getContext('webgl2', { antialias, alpha: true, powerPreference: 'high-performance' });
       if (!gl) return;
       const renderer = new THREE.WebGLRenderer({
         canvas,
@@ -438,7 +438,8 @@ const PixelBlast: React.FC<PixelBlastProps> = React.memo(({
       });
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Limit pixel ratio to improve performance on high-DPI displays
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       container.appendChild(renderer.domElement);
       const uniforms = {
         uResolution: { value: new THREE.Vector2(0, 0) },

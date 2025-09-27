@@ -20,17 +20,35 @@ const PixelBlast = dynamic(() => import('@/components/PixelBlast'), {
   loading: () => null,
 });
 
-// Lazy load heavy components
+// Lazy load heavy components with better loading states
 const WorldMapLite = dynamic(() => import('@/components/ui/world-map-lite'), {
-  loading: () => null,
+  loading: () => (
+    <div className="w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-none mx-[-16px] sm:mx-0 bg-black/50 flex items-center justify-center">
+      <div className="animate-pulse text-gray-400">Loading map...</div>
+    </div>
+  ),
   ssr: false
 });
 
+// Use optimized features section without GSAP
 const FeaturesSection = dynamic(() => import('@/components/ui/features-section'), {
-  loading: () => null
+  loading: () => (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 relative z-10 py-8 lg:py-8 max-w-[1200px] mx-auto">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="flex flex-col p-6 lg:p-0 relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl lg:rounded-none mx-4 lg:mx-0 mb-4 lg:mb-0">
+          <div className="animate-pulse">
+            <div className="w-12 h-12 bg-emerald-500/20 rounded mb-4"></div>
+            <div className="h-6 bg-white/20 rounded mb-2"></div>
+            <div className="h-4 bg-white/10 rounded mb-1"></div>
+            <div className="h-4 bg-white/10 rounded w-3/4"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 });
 
-// PixelBlast is statically imported above for instant render
+// PixelBlast is dynamically imported and only loaded when showPixelBlast is true
 
 const GradualBlur = dynamic(() => import('@/components/GradualBlur'), {
   loading: () => null,
@@ -400,22 +418,17 @@ export default function HomePage() {
             <PixelBlast
               key="hero-pixelblast"
               variant="square"
-              pixelSize={6}
+              pixelSize={8} // Larger pixels for better performance
               color="#22c55e"
-              patternScale={3}
-              patternDensity={1.2}
-              pixelSizeJitter={0.5}
-              enableRipples
-              rippleSpeed={0.3}
-              rippleThickness={0.12}
-              rippleIntensityScale={1.5}
-              liquid
-              liquidStrength={0.12}
-              liquidRadius={1.2}
-              liquidWobbleSpeed={5}
-              speed={0.3}
+              patternScale={2} // Reduced complexity
+              patternDensity={1}
+              pixelSizeJitter={0.2} // Reduced jitter
+              enableRipples={false} // Disabled for performance
+              speed={0.2} // Slower animation for better performance
               edgeFade={0.25}
               transparent
+              antialias={false} // Disabled for performance
+              liquid={false} // Disabled for performance
               className="w-full h-full"
             />
           ) : null}

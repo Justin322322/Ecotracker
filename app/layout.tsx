@@ -1,11 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
-import { QueryProvider } from '@/components/providers/QueryProvider';
-import { UserProvider } from '@/contexts/UserContext';
-// Removed ServiceWorkerRegister - no longer needed
-import GlobalToaster from '@/components/common/GlobalToaster';
-import UnregisterServiceWorker from '@/components/common/UnregisterServiceWorker';
+import { AppProviders } from '@/components/providers/AppProviders';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -51,22 +46,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="EcoTracker" />
       </head>
       <body className={inter.className}>
-        <QueryProvider>
-          <UserProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <UnregisterServiceWorker />
-              <div id="app-root" className="min-h-screen">
-                {children}
-              </div>
-              <GlobalToaster />
-            </ThemeProvider>
-          </UserProvider>
-        </QueryProvider>
+        <AppProviders>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

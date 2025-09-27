@@ -27,13 +27,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useUser } from "@/contexts/UserContext"
 
 const data = {
-  user: {
-    name: "Eco User",
-    email: "user@ecotracker.com",
-    avatar: "/avatars/user.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -105,6 +101,19 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useUser()
+
+  // Create user data for NavUser component
+  const userData = user ? {
+    name: user.name,
+    email: user.email,
+    avatar: "/avatars/user.jpg", // You can update this to use user.avatar if available
+  } : {
+    name: "Guest User",
+    email: "guest@ecotracker.com",
+    avatar: "/avatars/guest.jpg",
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -128,7 +137,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   )
