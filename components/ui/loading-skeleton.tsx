@@ -6,7 +6,7 @@ interface LoadingSkeletonProps {
   count?: number;
 }
 
-export function LoadingSkeleton({ 
+function LoadingSkeleton({ 
   className, 
   variant = 'text',
   count = 1 

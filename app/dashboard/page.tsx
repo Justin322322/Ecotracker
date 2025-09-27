@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { CardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/ui/loading-skeleton"
 import { FullScreenLoading } from "@/components/ui/full-screen-loading"
-import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav"
+import MobileBottomNav from "@/components/ui/mobile-bottom-nav"
 import { useDashboardLoading } from "@/hooks/use-app-initialization"
 import { useUser } from '@/contexts/UserContext'
 import { useRouter } from 'next/navigation'

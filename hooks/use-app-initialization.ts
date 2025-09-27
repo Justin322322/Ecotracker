@@ -173,36 +173,6 @@ function useAppInitialization(options: UseAppInitializationOptions = {}) {
   };
 }
 
-// Hook specifically for login transitions
-export function useLoginTransition() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [userData, setUserData] = useState<{
-    name?: string;
-    email?: string;
-  }>({});
-
-  const startTransition = useCallback((user?: { name?: string; email?: string }) => {
-    if (user) {
-      setUserData(user);
-    }
-    setIsVisible(true);
-  }, []);
-
-  const completeTransition = useCallback(() => {
-    setIsVisible(false);
-    // Clear user data after transition
-    setTimeout(() => {
-      setUserData({});
-    }, 500);
-  }, []);
-
-  return {
-    isVisible,
-    userData,
-    startTransition,
-    completeTransition,
-  };
-}
 
 // Hook for dashboard loading state
 export function useDashboardLoading() {

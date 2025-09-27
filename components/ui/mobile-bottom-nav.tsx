@@ -24,7 +24,7 @@ interface MobileBottomNavProps {
   className?: string;
 }
 
-export function MobileBottomNav({ className }: MobileBottomNavProps) {
+function MobileBottomNav({ className }: MobileBottomNavProps) {
   const [open, setOpen] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
@@ -174,5 +174,3 @@ export function MobileBottomNav({ className }: MobileBottomNavProps) {
 }
 
 export default MobileBottomNav;
-
-
