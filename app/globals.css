@@ -166,32 +166,11 @@ select:-moz-autofill {
 }
 
 @layer utilities {
-  .writing-mode-vertical {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-  }
-  
   .hero-text-shadow {
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 8px 16px rgba(0, 0, 0, 0.4);
   }
-  
-  .hero-text-glow {
-    text-shadow: 0 0 20px rgba(74, 222, 128, 0.8), 0 0 40px rgba(74, 222, 128, 0.4), 0 0 60px rgba(74, 222, 128, 0.2);
-  }
 }
 
-/* Material Symbols helper - ensures ligatures render as icons */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px; /* adjust as needed */
-  line-height: 1;
-  display: inline-block;
-  vertical-align: middle;
-  /* default variation settings - you can tweak FILL, wght, GRAD, opsz */
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -231,46 +210,9 @@ select:-moz-autofill {
     padding-right: 0 !important;
   }
 
-/* Mobile keyboard handling */
-@supports (height: 100dvh) {
-  .mobile-keyboard-adjust {
-    height: 100dvh;
-  }
-}
-
 /* Safe area handling for mobile */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Mobile viewport adjustments */
-@supports (height: 100dvh) {
-  .mobile-viewport {
-    height: 100dvh;
-    height: 100svh; /* Small viewport height - excludes mobile UI */
-  }
-}
-
-/* Background image loading optimization */
-.bg-image-container {
-  background-color: #000000;
-  background-image: url('/assets/bg.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* Ensure background loads smoothly */
-.bg-image-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #000000;
-  z-index: -1;
 }
 
 /* Sheet Animation Support - Tailwind CSS animations */
@@ -371,26 +313,6 @@ select:-moz-autofill {
   }
 }
 
-/* Smooth fade/slide for carousel items */
-@keyframes fade-slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-out-0 {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
 
 /* Animation utility classes */
 .animate-in {
@@ -437,23 +359,7 @@ select:-moz-autofill {
   animation: fade-in-0 300ms ease-out;
 }
 
-.animate-fade-slide-up {
-  animation: fade-slide-up 420ms ease-out;
-}
 
-.fade-out-0 {
-  animation: fade-out-0 300ms ease-out;
-}
-
-/* Modern Gradient with Noise */
-.noise-gradient {
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(74, 222, 128, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(74, 222, 128, 0.06) 0%, transparent 50%),
-    linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 100%);
-  position: relative;
-}
 
 /* Green Train Hover Effect */
 .green-train-hover {
@@ -482,41 +388,6 @@ select:-moz-autofill {
   z-index: 2;
 }
 
-.noise-gradient::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
-  background-size: 20px 20px;
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.noise-gradient::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 2px 2px, rgba(74, 222, 128, 0.1) 1px, transparent 0);
-  background-size: 15px 15px;
-  opacity: 0.2;
-  pointer-events: none;
-}
 
 
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
