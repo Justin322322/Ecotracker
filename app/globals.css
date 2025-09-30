@@ -102,7 +102,7 @@ div button[data-state="active"][role="tab"] {
   }
   html {
     /* Prevent layout shift when scrollbar hides/shows */
-    scrollbar-gutter: stable; /* reserve only on scrollbar side */
+    scrollbar-gutter: stable both-edges; /* reserve equal gutters to avoid perceived offset */
     /* Keep scrollbar track visible to avoid disappearing when Dialog locks scroll */
     overflow-y: scroll;
     /* Neutralize scroll-lock padding variable globally */
@@ -113,7 +113,7 @@ div button[data-state="active"][role="tab"] {
     @apply text-foreground;
     background-color: #000000; /* enforce dark bg under drawers */
     /* Reserve scrollbar gutter at body level too to avoid shifts on lock */
-    scrollbar-gutter: stable;
+    scrollbar-gutter: stable both-edges;
     /* Ensure the scroll-lock variable resolves to zero */
     --removed-body-scroll-bar-size: 0px !important;
   }
@@ -131,6 +131,8 @@ div button[data-state="active"][role="tab"] {
     margin-right: 0 !important;
     /* When scroll is locked, don't reserve gutter to avoid right gap */
     scrollbar-gutter: auto !important;
+    /* Hide scrollbar completely during modal open to avoid visual bias */
+    overflow: hidden !important;
   }
 
   /* Explicitly neutralize inline padding-right added by scroll lock */

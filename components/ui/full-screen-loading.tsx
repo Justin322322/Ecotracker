@@ -9,8 +9,8 @@ interface FullScreenLoadingProps {
   isVisible: boolean;
   onComplete?: () => void;
   className?: string;
-  showSteps?: boolean; // Control whether to show loading steps
-  duration?: number; // Total duration in milliseconds
+  showSteps?: boolean;
+  duration?: number;
 }
 
 interface LoadingStep {
@@ -34,7 +34,7 @@ const ANIMATION_VARIANTS = {
     exit: { opacity: 0 },
     transition: { duration: 0.3, ease: EASE_OUT },
   },
-  content: {
+  fadeIn: {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
     transition: { duration: 0.3, ease: EASE_OUT },
@@ -73,24 +73,40 @@ export function FullScreenLoading({
   const [progress, setProgress] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Client-side mount
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Lock scroll when visible
   useEffect(() => {
     if (!isVisible) return;
     
+    // Prevent scrolling and layout shifts
     const previousOverflow = document.documentElement.style.overflow;
+    const previousOverflowY = document.documentElement.style.overflowY;
+    const previousHeight = document.documentElement.style.height;
+    const previousWidth = document.documentElement.style.width;
+    
     document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overflowY = 'hidden';
+    document.documentElement.style.height = '100vh';
+    document.documentElement.style.width = '100vw';
+    
+    // Also prevent body scrolling
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    document.body.style.width = '100vw';
     
     return () => {
       document.documentElement.style.overflow = previousOverflow;
+      document.documentElement.style.overflowY = previousOverflowY;
+      document.documentElement.style.height = previousHeight;
+      document.documentElement.style.width = previousWidth;
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.body.style.width = '';
     };
   }, [isVisible]);
 
-  // Reset state when hidden
   useEffect(() => {
     if (!isVisible) {
       setCurrentStep(0);
@@ -98,7 +114,6 @@ export function FullScreenLoading({
     }
   }, [isVisible]);
 
-  // Progress and step management
   useEffect(() => {
     if (!isMounted || !isVisible) return;
 
@@ -107,7 +122,6 @@ export function FullScreenLoading({
     let completeTimeout: NodeJS.Timeout;
 
     if (showSteps) {
-      // Login mode: Step-based progression with text
       let stepIndex = 0;
       const totalSteps = LOADING_STEPS.length;
       const progressPerStep = 100 / totalSteps;
@@ -124,13 +138,11 @@ export function FullScreenLoading({
         const targetProgress = (stepIndex + 1) * progressPerStep;
         const increment = progressPerStep / (step.duration / 100);
 
-        // Smooth progress animation
         progressInterval = setInterval(() => {
           currentProgress = Math.min(currentProgress + increment, targetProgress);
           setProgress(currentProgress);
         }, 100);
 
-        // Move to next step
         stepTimeout = setTimeout(() => {
           clearInterval(progressInterval);
           setProgress(targetProgress);
@@ -139,7 +151,6 @@ export function FullScreenLoading({
           if (stepIndex < totalSteps) {
             advanceStep();
           } else {
-            // Complete
             setProgress(100);
             completeTimeout = setTimeout(() => {
               onComplete?.();
@@ -156,7 +167,6 @@ export function FullScreenLoading({
         clearTimeout(completeTimeout);
       };
     } else {
-      // Logout mode: Smooth continuous progression
       const increment = 100 / (duration / 100);
 
       progressInterval = setInterval(() => {
@@ -192,37 +202,43 @@ export function FullScreenLoading({
           transition={ANIMATION_VARIANTS.overlay.transition}
           className={cn(
             'fixed inset-0 z-50 flex items-center justify-center',
-            'min-h-screen w-full bg-black',
+            'h-screen w-screen bg-black overflow-hidden',
             className
           )}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            overflow: 'hidden'
+          }}
         >
-          {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-green-600/10" />
-          
-          {/* Overlay for text contrast */}
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
 
-          {/* Main content */}
-          <div className="relative z-10 flex flex-col items-center justify-center w-80 sm:w-96 px-4 sm:px-6 text-center">
+          {/* Fixed container to prevent any layout shifts */}
+          <div className="relative z-10 flex flex-col items-center justify-center w-80 sm:w-96 px-4 sm:px-6">
             
-            {/* Logo */}
             <LeafIcon 
-              className="mb-4 h-8 w-8 text-green-400" 
+              className="mb-4 h-8 w-8 text-green-400 flex-shrink-0" 
               aria-label="EcoTracker logo" 
             />
 
-            {/* Header */}
+            {/* Header - fixed height */}
             <motion.div
-              initial={ANIMATION_VARIANTS.content.initial}
-              animate={ANIMATION_VARIANTS.content.animate}
-              transition={ANIMATION_VARIANTS.content.transition}
-              className="mb-8 flex flex-col items-center space-y-2 min-h-[4rem]"
+              initial={ANIMATION_VARIANTS.fadeIn.initial}
+              animate={ANIMATION_VARIANTS.fadeIn.animate}
+              transition={ANIMATION_VARIANTS.fadeIn.transition}
+              className="mb-8 flex flex-col items-center space-y-2 h-[4.5rem] justify-center"
             >
               <motion.h1
                 initial={ANIMATION_VARIANTS.title.initial}
                 animate={ANIMATION_VARIANTS.title.animate}
                 transition={ANIMATION_VARIANTS.title.transition}
-                className="text-2xl font-bold text-white"
+                className="text-2xl font-bold text-white leading-tight"
               >
                 EcoTracker
               </motion.h1>
@@ -230,18 +246,18 @@ export function FullScreenLoading({
                 initial={ANIMATION_VARIANTS.subtitle.initial}
                 animate={ANIMATION_VARIANTS.subtitle.animate}
                 transition={ANIMATION_VARIANTS.subtitle.transition}
-                className="text-sm text-neutral-400"
+                className="text-sm text-neutral-400 leading-tight"
               >
                 {showSteps ? 'Welcome back!' : 'Logging out...'}
               </motion.p>
             </motion.div>
 
-            {/* Progress bar */}
+            {/* Progress bar - fixed width */}
             <motion.div
               initial={ANIMATION_VARIANTS.progress.initial}
               animate={ANIMATION_VARIANTS.progress.animate}
               transition={ANIMATION_VARIANTS.progress.transition}
-              className="w-full mb-6"
+              className="w-full mb-6 flex-shrink-0"
             >
               <div
                 className="relative h-3 bg-neutral-800/50 rounded-full overflow-hidden backdrop-blur-sm border border-neutral-700/50 w-64 sm:w-80 mx-auto"
@@ -258,19 +274,18 @@ export function FullScreenLoading({
                 />
               </div>
               
-              {/* Progress labels */}
               <div className="flex items-center justify-between mt-3 text-xs text-neutral-400 select-none">
                 <span className="tabular-nums font-mono w-8 text-left">0%</span>
-                <span className="tabular-nums font-mono w-10 text-center text-green-400 font-medium">
+                <span className="tabular-nums font-mono w-8 text-center text-green-400 font-medium">
                   {clampedProgress}%
                 </span>
-                <span className="tabular-nums font-mono w-12 text-right">100%</span>
+                <span className="tabular-nums font-mono w-8 text-right">100%</span>
               </div>
             </motion.div>
 
-            {/* Loading step text - always reserve space to prevent layout shift */}
-            <div className="h-12 flex items-center justify-center">
-              {showSteps && (
+            {/* Step text - ALWAYS rendered with fixed height to prevent layout shift */}
+            <div className="h-12 flex items-center justify-center w-full flex-shrink-0">
+              {showSteps ? (
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
@@ -280,11 +295,18 @@ export function FullScreenLoading({
                     transition={ANIMATION_VARIANTS.stepText.transition}
                     className="flex items-center justify-center text-neutral-300 w-full"
                   >
-                    <span className="text-base font-medium">
+                    <span className="text-base font-medium text-center leading-tight">
                       {LOADING_STEPS[currentStep]?.text || 'Loading...'}
                     </span>
                   </motion.div>
                 </AnimatePresence>
+              ) : (
+                // Invisible placeholder to maintain exact same height
+                <div className="flex items-center justify-center text-neutral-300 w-full opacity-0 pointer-events-none">
+                  <span className="text-base font-medium text-center leading-tight">
+                    Placeholder text
+                  </span>
+                </div>
               )}
             </div>
 

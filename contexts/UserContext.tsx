@@ -72,33 +72,59 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Cleanup effect to ensure logout state is reset on unmount
+  useEffect(() => {
+    return () => {
+      setIsLoggingOut(false);
+    };
+  }, []);
+
   // Handle logout process
   const logout = useCallback(async () => {
     // Prevent duplicate logout requests
     if (isLoggingOut) return;
 
+    // Immediately set logout state and clear user to prevent dashboard flash
     setIsLoggingOut(true);
     setUser(null);
 
     try {
       const timestamp = Date.now();
-      await fetch(`${API_ENDPOINTS.LOGOUT}?t=${timestamp}`, {
+      const response = await fetch(`${API_ENDPOINTS.LOGOUT}?t=${timestamp}`, {
         method: 'POST',
         ...FETCH_OPTIONS.noCache,
         keepalive: true,
         headers: FETCH_OPTIONS.noCacheHeaders,
       });
+      
+      // Only proceed with navigation if logout was successful
+      if (response.ok) {
+        // Clear any cached data
+        if (typeof window !== 'undefined') {
+          // Clear any localStorage/sessionStorage if needed
+          localStorage.removeItem('user');
+          sessionStorage.clear();
+        }
+        
+        // Add a delay to show the loading animation before navigation
+        setTimeout(() => {
+          router.replace('/');
+          // Reset logout state after navigation
+          setTimeout(() => {
+            setIsLoggingOut(false);
+          }, 100);
+        }, 800); // Show loading for 800ms
+      } else {
+        console.error('Logout failed:', response.statusText);
+        // Reset logout state if logout failed
+        setIsLoggingOut(false);
+      }
     } catch (error) {
       console.error('Logout failed:', error);
+      // Reset logout state if logout failed
+      setIsLoggingOut(false);
     }
-    // Note: router.replace('/') is now called in onComplete callback
-  }, [isLoggingOut]);
-
-  // Handle loading complete - redirect to home
-  const handleLoadingComplete = useCallback(() => {
-    setIsLoggingOut(false);
-    router.replace('/');
-  }, [router]);
+  }, [isLoggingOut, router]);
 
   const contextValue: UserContextType = {
     user,
@@ -113,9 +139,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       {children}
       <FullScreenLoading
         isVisible={isLoggingOut}
-        onComplete={handleLoadingComplete}
         showSteps={false}
-        duration={1500}
+        duration={800}
       />
     </UserContext.Provider>
   );

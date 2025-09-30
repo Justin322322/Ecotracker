@@ -19,7 +19,7 @@ import data from "./data.json"
 
 export default function Page() {
   const { isLoading, error, retry } = useDashboardLoading();
-  const { isLoggingOut } = useUser();
+  const { isLoggingOut, user } = useUser();
   const router = useRouter();
   // Removed initial mount skeletons in favor of full-screen loader
   const [viewportWidth, setViewportWidth] = useState<number | null>(null);
@@ -57,8 +57,8 @@ export default function Page() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  // During logout, unmount dashboard content entirely. Global overlay will handle visuals.
-  if (isLoggingOut) {
+  // During logout or when no user, unmount dashboard content entirely. Global overlay will handle visuals.
+  if (isLoggingOut || !user) {
     return null;
   }
 
