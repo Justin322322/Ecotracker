@@ -66,7 +66,6 @@ export default function Page() {
     return (
       <FullScreenLoading
         isVisible={true}
-        variant="login"
       />
     );
   }

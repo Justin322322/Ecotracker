@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { FullScreenLoading } from '@/components/ui/full-screen-loading';
 
@@ -15,11 +15,24 @@ interface UserContextType {
   setUser: (user: User | null) => void;
   isLoading: boolean;
   isLoggingOut: boolean;
-  setIsLoggingOut: (isLoggingOut: boolean) => void;
   logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
+
+const API_ENDPOINTS = {
+  ME: '/api/me',
+  LOGOUT: '/api/logout',
+} as const;
+
+const FETCH_OPTIONS = {
+  noCache: { cache: 'no-store' as RequestCache },
+  noCacheHeaders: {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'Pragma': 'no-cache',
+  },
+} as const;
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -27,74 +40,82 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
+  // Check for existing user session on mount
   useEffect(() => {
-    // Check for existing user data from session cookie
-    const checkUser = async () => {
+    const checkUserSession = async () => {
       try {
-        const response = await fetch('/api/me', { cache: 'no-store' });
+        const response = await fetch(API_ENDPOINTS.ME, FETCH_OPTIONS.noCache);
+        
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
           if (data?.user) {
-            setIsLoggingOut(false);
+            setUser(data.user);
           }
         }
       } catch (error) {
-        console.error('Error checking user session:', error);
+        console.error('Failed to check user session:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkUser();
+    checkUserSession();
   }, []);
 
-  const handleSetUser = (newUser: User | null) => {
+  // Handle user state updates
+  const handleSetUser = useCallback((newUser: User | null) => {
     setUser(newUser);
-    // User state is now managed by session cookies, no localStorage needed
+    
+    // Reset logout state when user logs in
     if (newUser) {
       setIsLoggingOut(false);
     }
-  };
+  }, []);
 
-  const handleSetLoggingOut = (loggingOut: boolean) => {
-    setIsLoggingOut(loggingOut);
-    if (loggingOut) {
-      setUser(null);
-    }
-  };
-
-  const logout = async () => {
+  // Handle logout process
+  const logout = useCallback(async () => {
+    // Prevent duplicate logout requests
     if (isLoggingOut) return;
-    handleSetLoggingOut(true);
+
+    setIsLoggingOut(true);
+    setUser(null);
+
     try {
-      await fetch(`/api/logout?t=${Date.now()}`, {
+      const timestamp = Date.now();
+      await fetch(`${API_ENDPOINTS.LOGOUT}?t=${timestamp}`, {
         method: 'POST',
-        cache: 'no-store',
+        ...FETCH_OPTIONS.noCache,
         keepalive: true,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-          Pragma: 'no-cache',
-        },
+        headers: FETCH_OPTIONS.noCacheHeaders,
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Logout error:', error);
-    } finally {
-      router.replace('/');
+      console.error('Logout failed:', error);
     }
+    // Note: router.replace('/') is now called in onComplete callback
+  }, [isLoggingOut]);
+
+  // Handle loading complete - redirect to home
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoggingOut(false);
+    router.replace('/');
+  }, [router]);
+
+  const contextValue: UserContextType = {
+    user,
+    setUser: handleSetUser,
+    isLoading,
+    isLoggingOut,
+    logout,
   };
 
-  // Removed logout overlay effects
-
   return (
-    <UserContext.Provider value={{ user, setUser: handleSetUser, isLoading, isLoggingOut, setIsLoggingOut: handleSetLoggingOut, logout }}>
+    <UserContext.Provider value={contextValue}>
       {children}
       <FullScreenLoading
         isVisible={isLoggingOut}
-        variant="logout"
-        onComplete={() => setIsLoggingOut(false)}
+        onComplete={handleLoadingComplete}
+        showSteps={false}
+        duration={1500}
       />
     </UserContext.Provider>
   );
@@ -102,8 +123,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
 export function useUser() {
   const context = useContext(UserContext);
+  
   if (context === undefined) {
     throw new Error('useUser must be used within a UserProvider');
   }
+  
   return context;
 }

@@ -61,7 +61,6 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Registration error', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
